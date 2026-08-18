@@ -1,0 +1,42 @@
+{
+  "_contract": [
+    "Turkish language pack. Loaded in addition to patterns.json when present.",
+    "Same contract: patterns match the FOLDED message (lowercased, reduced to ASCII), so they",
+    "are written without Turkish letters — write 'kullanici', never 'kullanici' with dotless i,",
+    "otherwise the pattern never matches.",
+    "Useful when commit messages are occasionally written in Turkish out of habit even though",
+    "the spec asks for English."
+  ],
+  "hard": [
+    {
+      "pattern": "kullanici[^.\\n]{0,80}\\b(sordu|dedi|soyledi|bildirdi|istedi|itiraz)",
+      "label": "conversation reference, TR (kullanici ... sordu/dedi/bildirdi)"
+    },
+    {
+      "pattern": "kullanici\\s*(nin|nun)?\\s+(sorusu|bildirimi|raporu|karari|talebi|gozlemi|incelemesi|istegi|itirazi)",
+      "label": "conversation reference, TR (kullanici sorusu/bildirimi/karari ...)"
+    },
+    {
+      "pattern": "\\burun karari\\b",
+      "label": "attribution, TR ('urun karari')"
+    },
+    {
+      "pattern": "(?m)^\\s*(soru|duzeltme)\\s*:",
+      "label": "narrative frame, TR (SORU: / DUZELTME:)"
+    },
+    {
+      "pattern": "\\bdemistim\\b",
+      "label": "narrative frame, TR ('...demistim')"
+    },
+    {
+      "pattern": "\\bdegerlendirmem\\b|\\bdogru hatirliyor\\b",
+      "label": "first-person narrative, TR"
+    }
+  ],
+  "soft": [
+    {
+      "pattern": "\\b(yaptim|olctum|baktim|gordum|denedim|kovaladim|sandim|dusundum|ekledim|buldum|sectim|yazdim|anladim|karar verdim|fark ettim)\\b",
+      "label": "first person singular, TR"
+    }
+  ]
+}

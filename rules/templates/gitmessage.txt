@@ -1,0 +1,15 @@
+# <type>(<scope>): <subject — imperative, lowercase, no trailing period>
+# |<---- target 72 characters ---------------------------------------->|
+# |<---- hard limit 100 characters ------------------------------------------------->|
+
+# Why was this needed? What was the previous behaviour? Any side effects?
+# Do not restate the diff. Wrap at 100.
+# |<---- 100 characters ------------------------------------------------------------>|
+
+# Refs: #
+# BREAKING CHANGE:
+#
+# types: feat fix perf security refactor docs test build ci chore revert style
+# feat -> MINOR · fix/perf/security -> PATCH · <type>! or BREAKING CHANGE -> MAJOR
+#
+# One commit = one logical change. If this message needs an "and", split it.

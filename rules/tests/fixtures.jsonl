@@ -1,0 +1,76 @@
+{"id": "hard-atif-dedi", "cmd": "git commit -m \"kullanici dedi ki X butonu calismiyor\"", "expect": "deny", "note": "TR conversation reference plus no type prefix"}
+{"id": "hard-atif-turkce", "cmd": "git commit -m \"kullanıcı bildirdi: liste donuyor\"", "expect": "deny", "note": "folding proof: the non-ASCII spelling still matches"}
+{"id": "hard-atif-sorusu", "cmd": "git commit -m \"kullanicinin sorusu uzerine esik dusuruldu\"", "expect": "deny", "note": "TR conversation reference"}
+{"id": "hard-urun-karari", "cmd": "git commit -m \"urun karari geregi alan kaldirildi\"", "expect": "deny", "note": "TR attribution"}
+{"id": "hard-anlati-soru", "cmd": "git commit -m \"fix(x): y donmuyordu\n\nSORU: bu neden boyle\"", "expect": "deny", "note": "TR narrative frame at line start"}
+{"id": "hard-demistim", "cmd": "git commit -m \"onceki analizde demistim ama yanlisti\"", "expect": "deny", "note": "TR first-person narrative"}
+{"id": "hard-degerlendirmem", "cmd": "git commit -m \"ilk degerlendirmem hataliydi, kok neden farkli\"", "expect": "deny", "note": "TR first-person narrative"}
+{"id": "hard-coauthor", "cmd": "git commit -m \"fix(x): y\n\nCo-Authored-By: Someone <a@b.c>\"", "expect": "pass", "note": "CHANGED: a human co-author is now allowed; only AI ones are blocked"}
+{"id": "hard-generated", "cmd": "git commit -m \"fix(x): y\n\nGenerated with Claude Code\"", "expect": "deny", "note": "AI attribution trailer"}
+{"id": "soft-yaptim", "cmd": "git commit -m \"regex duzeltmesi yaptim\"", "expect": "deny", "expect_rules": ["subject-format"], "note": "CHANGED: was ask; now also fails the type prefix"}
+{"id": "soft-olctum", "cmd": "git commit -m \"gecikmeyi olctum, 54,9 -> 14,6 ms\"", "expect": "deny", "expect_rules": ["subject-format"], "note": "CHANGED: was ask; now also fails the type prefix"}
+{"id": "pass-temiz-konvansiyonel", "cmd": "git commit -m \"fix(gate): git -C yolundaki commit denetlenmiyordu\"", "expect": "pass", "note": "a conforming message passes silently"}
+{"id": "pass-olcum-ismi", "cmd": "git commit -m \"perf(index): olcum 54,9 -> 14,6 ms\"", "expect": "pass", "note": "false-positive guard: the noun, not the verb"}
+{"id": "pass-commit-graph", "cmd": "git commit-graph write --reachable", "expect": "pass", "note": "false-positive guard: commit-graph is another subcommand"}
+{"id": "pass-git-log", "cmd": "git log --oneline -5", "expect": "pass", "note": "a non-commit git command"}
+{"id": "pass-git-yok", "cmd": "echo \"kullanici dedi ki\" > /tmp/probe.txt", "expect": "pass", "note": "no commit call, so nothing is scanned"}
+{"id": "det-bilesik-and", "cmd": "cd /tmp/x && git commit -m \"kullanici dedi ki bozuk\"", "expect": "deny", "note": "compound command"}
+{"id": "det-dash-C", "cmd": "git -C /tmp/x commit -m \"kullanici dedi ki bozuk\"", "expect": "deny", "note": "global option -C"}
+{"id": "det-git-dir", "cmd": "git --git-dir=/tmp/x/.git commit -m \"yaptim\"", "expect": "deny", "expect_rules": ["subject-format"], "note": "CHANGED: was ask; now also fails the type prefix"}
+{"id": "det-config-c", "cmd": "git -c user.name=x commit -m \"olctum\"", "expect": "deny", "expect_rules": ["subject-format"], "note": "CHANGED: -c before commit is a git global, not reuse-message"}
+{"id": "det-no-pager", "cmd": "git --no-pager commit -m \"kullanicinin talebi uzerine\"", "expect": "deny", "note": "global flag"}
+{"id": "det-cift-bosluk", "cmd": "git  commit -m \"baktim ve duzelttim\"", "expect": "deny", "expect_rules": ["subject-format"], "note": "CHANGED: was ask; now also fails the type prefix"}
+{"id": "det-amend", "cmd": "git commit --amend -m \"kullanici dedi ki\"", "expect": "deny", "note": "--amend is still checked"}
+{"id": "fp-tag-tail", "cmd": "git commit --amend --no-edit && git tag -a v1.2.0 -m \"release 1.2.0\"", "expect": "pass", "note": "the tag's -m must not be read as the commit message"}
+{"id": "fp-stash-tail", "cmd": "git stash push -m \"wip\" && git commit -m \"feat(x): add y\"", "expect": "pass", "note": "the stash's -m belongs to another segment"}
+{"id": "fp-notes-tail", "cmd": "git commit -m \"docs(x): describe y\" && git notes add -m \"kullanici dedi ki\"", "expect": "pass", "note": "the notes' -m is not the commit message"}
+{"id": "fp-command-subst", "cmd": "git commit -m \"$(cat /tmp/msg.txt)\"", "expect": "pass", "note": "an unmeasurable message is never judged"}
+{"id": "fp-ansi-c-quote", "cmd": "git commit -m $'feat(x): add y\\n\\nbody'", "expect": "pass", "note": "ANSI-C quoting is shell expansion, so it is skipped"}
+{"id": "fp-var-expansion", "cmd": "git commit -m \"chore(release): cut ${VERSION}\"", "expect": "pass", "note": "variable expansion cannot be measured"}
+{"id": "fp-apostrophe-tail", "cmd": "git commit -m \"feat(gate): scope -m to the commit segment\" && echo \"don't forget to push\"", "expect": "pass", "note": "an apostrophe in a tail command must not break parsing"}
+{"id": "fp-fixup", "cmd": "git commit --fixup=HEAD~2 -m \"indented terminator truncated the body\"", "expect": "pass", "note": "with --fixup the -m text supplements the body, it is not the subject"}
+{"id": "fp-squash", "cmd": "git commit --squash=HEAD -m \"extra note\"", "expect": "pass", "note": "same as fixup"}
+{"id": "fp-reuse-message", "cmd": "git commit -c HEAD~1 -m \"extra note\"", "expect": "pass", "note": "-c after commit is reuse-message"}
+{"id": "fp-revert-long", "cmd": "git commit -m 'revert: \"fix(gate): reject heredoc bodies with indented terminators\"'", "expect": "pass", "note": "a git-generated revert prefix is exempt from length and format"}
+{"id": "fp-revert-capital", "cmd": "git commit -m 'Revert \"feat(x): add y\"'", "expect": "pass", "note": "git's own revert wording is exempt"}
+{"id": "fp-fixup-subject", "cmd": "git commit -m \"fixup! feat(x): add y\"", "expect": "pass", "note": "an autosquash subject is exempt"}
+{"id": "fp-merge-subject", "cmd": "git commit -m \"Merge branch 'main' into topic\"", "expect": "pass", "note": "merge wording is exempt"}
+{"id": "fp-heredoc-doc", "cmd": "cat <<'EOF' >> README.md\nExample: git commit -m \"feat(x): y\"\nEOF", "expect": "pass", "note": "documentation about commits is not a commit call"}
+{"id": "fp-human-coauthor", "cmd": "git commit -m \"fix(x): y\" -m \"Co-authored-by: Jane Doe <jane@acme.ai>\"", "expect": "pass", "note": "an .ai email domain must not be read as an AI co-author"}
+{"id": "fp-user-reported-noun", "cmd": "git commit -m \"feat(ui): add user reported issues page\"", "expect": "pass", "note": "user reported as a noun phrase is legitimate"}
+{"id": "fp-user-requested-noun", "cmd": "git commit -m \"feat(api): return only user requested fields\"", "expect": "pass", "note": "user requested as a noun phrase is legitimate"}
+{"id": "fp-long-url-body", "cmd": "git commit -m \"docs(x): link the upstream discussion\" -m \"See https://example.com/a/very/long/path/that/cannot/be/wrapped/by/hand/at/all/ever/12345\"", "expect": "pass", "note": "an unwrappable single token is exempt from the body limit"}
+{"id": "ext-am", "cmd": "git commit -am \"chore: tidy imports\"", "expect": "pass", "note": "clustered short flags before -m"}
+{"id": "ext-attached", "cmd": "git commit -m\"chore: tidy imports\"", "expect": "pass", "note": "value attached to -m"}
+{"id": "ext-message-eq", "cmd": "git commit --message=\"chore: tidy imports\"", "expect": "pass", "note": "the --message= form"}
+{"id": "ext-heredoc", "cmd": "git commit -F - <<'EOF'\nfeat(x): add the thing\n\nBody explaining why the thing was needed.\nEOF", "expect": "pass", "note": "the heredoc body is the message"}
+{"id": "ext-heredoc-tab", "cmd": "git commit -F - <<-'EOF'\n\tfeat(x): add the thing\n\n\tBody line.\n\tEOF", "expect": "pass", "note": "<<- strips leading tabs, as the shell does"}
+{"id": "ext-heredoc-two", "cmd": "cat <<'MD' > /tmp/n.md\nkullanici dedi ki\nMD\ngit commit -F - <<'EOF'\nfeat(x): add the thing\nEOF", "expect": "pass", "note": "the commit's heredoc is anchored to its own -F, not the first one"}
+{"id": "ext-heredoc-deny", "cmd": "git commit -F - <<'EOF'\nAdded the thing.\nEOF", "expect": "deny", "expect_rules": ["subject-format", "subject-full-stop"], "note": "a heredoc message is checked like any other"}
+{"id": "ext-pipe-no-heredoc", "cmd": "printf 'feat: x' | git commit -F -", "expect": "pass", "note": "a piped message is not visible to the gate"}
+{"id": "ext-file-missing", "cmd": "git commit -F /tmp/definitely-not-here-42.txt", "expect": "ask", "note": "an unreadable message file asks instead of passing silently"}
+{"id": "ext-file-real", "cmd": "git commit -F msg.txt", "expect": "deny", "expect_rules": ["subject-format"], "files": {"msg.txt": "Added the feature\n\nSome body.\n"}, "note": "a message read from a file is checked"}
+{"id": "ext-no-message", "cmd": "git commit", "expect": "pass", "note": "editor path: the message is not visible, so nothing is judged"}
+{"id": "str-good-full", "cmd": "git commit -F msg.txt", "expect": "pass", "files": {"msg.txt": "fix(auth): reject tokens with a future iat claim\n\nTokens minted by a clock-skewed service were accepted for up to five minutes,\nwhich let a replayed request pass validation.\n\nRefs: #487\n"}, "note": "reference conforming multi-line message"}
+{"id": "str-subject-73", "cmd": "git commit -m \"feat(scope): aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"", "expect": "ask", "expect_rules": ["subject-target-length"], "note": "73 characters: over target, under the hard limit"}
+{"id": "str-subject-101", "cmd": "git commit -m \"feat(scope): aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"", "expect": "deny", "expect_rules": ["subject-max-length"], "note": "101 characters: over the hard limit"}
+{"id": "str-bad-type", "cmd": "git commit -m \"foo(x): add y\"", "expect": "deny", "expect_rules": ["type-enum"], "note": "type not in the allowed list"}
+{"id": "str-type-alias", "cmd": "git commit -m \"sec(auth): rotate the signing key\"", "expect": "deny", "expect_rules": ["type-enum"], "note": "sec is rejected with security suggested"}
+{"id": "str-type-case", "cmd": "git commit -m \"Fix(gate): scope -m to the commit segment\"", "expect": "deny", "expect_rules": ["type-case"], "note": "the reason must name case, not the enum"}
+{"id": "str-trailing-period", "cmd": "git commit -m \"fix(gate): scope -m to the commit segment.\"", "expect": "deny", "expect_rules": ["subject-full-stop"], "note": "no trailing period"}
+{"id": "str-no-space", "cmd": "git commit -m \"fix(gate):no space after colon\"", "expect": "deny", "expect_rules": ["subject-separator"], "note": "a space is required after the colon"}
+{"id": "str-double-space", "cmd": "git commit -m \"fix(gate):  two spaces after colon\"", "expect": "ask", "expect_rules": ["subject-separator"], "note": "extra spaces are a style issue"}
+{"id": "str-no-blank-line", "cmd": "git commit -F msg.txt", "expect": "deny", "expect_rules": ["body-leading-blank"], "files": {"msg.txt": "fix(gate): scope the extractor\nBody starts immediately with no blank line.\n"}, "note": "a blank line between subject and body is required"}
+{"id": "str-non-imperative", "cmd": "git commit -m \"feat(gate): added the structural validator\"", "expect": "ask", "expect_rules": ["subject-imperative"], "note": "added is not imperative"}
+{"id": "str-subject-case", "cmd": "git commit -m \"feat(gate): Add the structural validator\"", "expect": "ask", "expect_rules": ["subject-case"], "note": "the subject should start lowercase"}
+{"id": "str-body-long", "cmd": "git commit -F msg.txt", "expect": "ask", "expect_rules": ["body-max-line-length"], "files": {"msg.txt": "fix(gate): scope the extractor\n\nThis body line is deliberately made longer than one hundred characters so that the wrap rule fires here.\n"}, "note": "body wrap is a style issue"}
+{"id": "str-breaking-case", "cmd": "git commit -F msg.txt", "expect": "ask", "expect_rules": ["breaking-change-case"], "files": {"msg.txt": "feat(api)!: return ISO-8601 timestamps\n\nbreaking change: created_at changes type from integer to string.\n"}, "note": "BREAKING CHANGE must be capitalised"}
+{"id": "str-crlf", "cmd": "git commit -F msg.txt", "expect": "pass", "files": {"msg.txt": "fix(gate): normalise line endings before measuring\r\n\r\nA CRLF file must not inflate the measured length.\r\n"}, "note": "CRLF must not create a phantom violation"}
+{"id": "str-trailing-space", "cmd": "git commit -m \"fix(gate): trailing space is trimmed \"", "expect": "pass", "note": "git trims it, so the gate must too"}
+{"id": "pat-en-user-said", "cmd": "git commit -m \"fix(ui): hide the panel\" -m \"The user said the panel was confusing.\"", "expect": "deny", "note": "English conversation reference"}
+{"id": "pat-en-per-request", "cmd": "git commit -m \"fix(ui): hide the panel\" -m \"Hidden per user request.\"", "expect": "deny", "note": "English: per user request"}
+{"id": "pat-en-as-i-said", "cmd": "git commit -m \"fix(ui): hide the panel\" -m \"As I mentioned, the panel was confusing.\"", "expect": "deny", "note": "English narrative frame"}
+{"id": "pat-en-my-assessment", "cmd": "git commit -m \"fix(ui): hide the panel\" -m \"My initial assessment was wrong.\"", "expect": "deny", "note": "English first-person narrative"}
+{"id": "pat-en-question-frame", "cmd": "git commit -F msg.txt", "expect": "deny", "files": {"msg.txt": "fix(ui): hide the panel\n\nQUESTION: why was it visible?\n"}, "note": "English narrative frame at line start"}
+{"id": "pat-en-first-person", "cmd": "git commit -m \"fix(ui): hide the panel\" -m \"I measured the render at 54.9 ms.\"", "expect": "ask", "note": "English first person singular is a soft hit"}
+{"id": "pat-en-ai-coauthor", "cmd": "git commit -m \"fix(x): y\" -m \"Co-authored-by: Claude <noreply@anthropic.com>\"", "expect": "deny", "note": "an AI co-author is blocked while humans are allowed"}

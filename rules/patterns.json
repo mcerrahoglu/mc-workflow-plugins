@@ -1,0 +1,87 @@
+{
+  "_contract": [
+    "TWO CHANNELS. Text patterns below are matched against the FOLDED message: lowercased and",
+    "reduced to ASCII. Therefore patterns must be written in lowercase and without non-ASCII",
+    "letters, or they will never match (a silent false negative). Structural checks in the",
+    "'structure' block are applied to the RAW message instead, because case matters there",
+    "(lowercase type, capitalised BREAKING CHANGE).",
+    "Syntax: Python re. 'hard' -> deny, 'soft' -> ask.",
+    "Additional language packs load from patterns.<lang>.json in this directory if present.",
+    "If this file cannot be read or is malformed the gate fails closed: the decision becomes",
+    "'ask' with a reason, never a silent pass."
+  ],
+  "hard": [
+    {
+      "pattern": "\\bthe user (said|asked|reported|requested|wanted|complained|noted|mentioned)\\b",
+      "label": "conversation reference (the user said/asked/reported ...)"
+    },
+    {
+      "pattern": "\\buser (has |had )(reported|requested|asked|said|complained)\\b",
+      "label": "conversation reference (user has reported/requested ...)"
+    },
+    {
+      "pattern": "\\bper (the )?user'?s? (request|report|feedback|question|complaint)\\b",
+      "label": "conversation reference (per user request/report ...)"
+    },
+    {
+      "pattern": "\\bas (the )?user (said|asked|requested)\\b|\\bas requested by (the )?user\\b",
+      "label": "conversation reference (as the user requested ...)"
+    },
+    {
+      "pattern": "(?m)^\\s*(question|correction)\\s*:",
+      "label": "narrative frame (QUESTION: / CORRECTION:)"
+    },
+    {
+      "pattern": "\\bas i (said|mentioned|noted|explained)\\b",
+      "label": "narrative frame ('as I mentioned')"
+    },
+    {
+      "pattern": "\\bmy (initial |first )?(assessment|assumption|guess|reading) was\\b",
+      "label": "first-person narrative ('my initial assessment was')"
+    },
+    {
+      "pattern": "generated with .{0,25}claude",
+      "label": "AI attribution trailer ('Generated with Claude')"
+    },
+    {
+      "pattern": "co-authored-by\\s*:[^<\\n]*\\b(claude|copilot|chatgpt|gpt-[0-9]|github-actions|\\[bot\\])\\b",
+      "label": "AI or bot co-author (a real human co-author is allowed)"
+    },
+    {
+      "pattern": "🤖",
+      "label": "robot emoji (AI attribution)"
+    }
+  ],
+  "soft": [
+    {
+      "pattern": "\\bi (fixed|added|measured|checked|looked|tried|found|thought|assumed|decided|noticed|wrote|removed|changed|ran|tested|realised|realized)\\b",
+      "label": "first person singular"
+    }
+  ],
+  "structure": {
+    "allowed_types": [
+      "build", "chore", "ci", "docs", "feat", "fix",
+      "perf", "refactor", "revert", "security", "style", "test"
+    ],
+    "type_suggestions": {
+      "sec": "security",
+      "ui": "feat or style",
+      "translate": "chore or feat",
+      "hotfix": "fix",
+      "wip": "split into a finished scope"
+    },
+    "subject_target": 72,
+    "subject_hard": 100,
+    "body_hard": 100,
+    "non_imperative_first_words": [
+      "added", "fixed", "updated", "removed", "changed", "refactored", "improved",
+      "created", "deleted", "renamed", "moved", "bumped", "implemented", "introduced",
+      "adds", "fixes", "updates", "removes", "changes", "refactors", "improves",
+      "creates", "deletes", "renames", "moves", "bumps", "implements", "introduces",
+      "adding", "fixing", "updating", "removing", "changing", "refactoring"
+    ],
+    "generated_prefixes": [
+      "revert:", "revert \"", "fixup!", "squash!", "amend!", "merge "
+    ]
+  }
+}
