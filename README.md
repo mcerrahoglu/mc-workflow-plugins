@@ -41,12 +41,15 @@ on the running code until you bump the version and reinstall.
 
 ```bash
 # 1) raise "version" in both the plugin's plugin.json and .claude-plugin/marketplace.json
-claude plugin marketplace update mc-workflow && claude plugin install rules@mc-workflow
-# 2) prove it — output must be empty
+claude plugin marketplace update mc-workflow
+# 2) reinstall — `install` alone will not upgrade a plugin that is already installed
+claude plugin uninstall rules@mc-workflow && claude plugin install rules@mc-workflow
+# 3) prove it — output must be empty
 diff -r ~/.mc-workflow/rules ~/.claude/plugins/cache/mc-workflow/rules/<new-version>
 ```
 
-Skipping this step is the easiest way to test the wrong copy of your own change.
+Skipping this is the easiest way to test the wrong copy of your own change. The old version
+directory stays behind under the cache; remove it only when nothing points at it any more.
 
 ---
 
