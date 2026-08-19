@@ -13,6 +13,31 @@ They are independent: install either one on its own. `workitem` does not need `r
 
 ---
 
+## Requirements
+
+- **Python 3** on PATH as `python3`. Both plugins are Python: the `rules` hooks and the
+  `workitem` script are run by the interpreter, so nothing works without it.
+- **git**, for the `workitem` commit collector.
+
+### Windows
+
+`python3` on Windows is usually a Microsoft Store alias stub rather than an interpreter, and the
+python.org installer does not create a `python3.exe` at all — so `python3 --version` reports
+"Python was not found" even with Python installed. Create the missing name next to the real
+interpreter:
+
+```cmd
+copy "%LOCALAPPDATA%\Programs\Python\Python311\python.exe" "%LOCALAPPDATA%\Programs\Python\Python311\python3.exe"
+```
+
+Adjust the version directory to yours. Python resolves its home from the executable's location
+rather than its name, so the copy behaves exactly like the original, and that directory precedes
+`WindowsApps` on PATH, so it wins over the stub without touching the Store alias. Confirm with
+`python3 --version`.
+
+Renaming the hook command to `python` instead is not a fix: many Linux distributions ship only
+`python3` and no `python`, so a single name breaks one platform or the other.
+
 ## Install
 
 ```bash
@@ -30,8 +55,9 @@ claude plugin install workitem@mc-workflow
 Hooks are read at session start, so a **new window** is needed before the rules plugin takes
 effect.
 
-> **Cross-platform note (unverified):** the hooks call `python3`. On Windows the interpreter is
-> usually on PATH as `python`. This has not been tested on Windows yet.
+Windows works once `python3` resolves — see Requirements. Verified on Windows 11 with Python
+3.11: the session hook injects the rules and the commit gate denies a non-conforming message
+with its rule ids.
 
 ### After editing anything: refresh the cache
 
@@ -283,7 +309,6 @@ workitem/
 
 ## Not verified yet
 
-- Windows hook compatibility (`python3` vs `python`).
 - Whether a given tracker's editor accepts Markdown — run the probe described above.
 - Whether the type list matches trackers other than the one it was drawn from. Treat
   `field-reference.md` as a starting point and edit it.
