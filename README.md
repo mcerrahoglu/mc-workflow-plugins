@@ -16,13 +16,13 @@ They are independent: install either one on its own. `workitem` does not need `r
 ## Install
 
 ```bash
-git clone https://github.com/mcerrahoglu/mc-workflow-plugins ~/.mc-workflow
+git clone https://github.com/mcerrahoglu/mc-workflow-plugins ~/mc-workflow-plugins
 ```
 
 Register the clone as a marketplace, then install what you want:
 
 ```bash
-claude plugin marketplace add ~/.mc-workflow
+claude plugin marketplace add ~/mc-workflow-plugins
 claude plugin install rules@mc-workflow
 claude plugin install workitem@mc-workflow
 ```
@@ -45,7 +45,7 @@ claude plugin marketplace update mc-workflow
 # 2) reinstall — `install` alone will not upgrade a plugin that is already installed
 claude plugin uninstall rules@mc-workflow && claude plugin install rules@mc-workflow
 # 3) prove it — output must be empty
-diff -r ~/.mc-workflow/rules ~/.claude/plugins/cache/mc-workflow/rules/<new-version>
+diff -r ~/mc-workflow-plugins/rules ~/.claude/plugins/cache/mc-workflow/rules/<new-version>
 ```
 
 Skipping this is the easiest way to test the wrong copy of your own change. The old version
@@ -90,7 +90,7 @@ Worked good and bad commit examples: `rules/references/commit-examples.md`. They
 An optional message template is in `rules/templates/gitmessage.txt`:
 
 ```bash
-git config --global commit.template ~/.mc-workflow/rules/templates/gitmessage.txt
+git config --global commit.template ~/mc-workflow-plugins/rules/templates/gitmessage.txt
 ```
 
 ### How the commit gate works
@@ -146,7 +146,7 @@ another language out of habit.
 ### Tests
 
 ```bash
-cd ~/.mc-workflow/rules && python3 tests/run.py
+cd ~/mc-workflow-plugins/rules && python3 tests/run.py
 ```
 
 76 cases: false-positive protection, the message extractor, boundary values, case handling,
@@ -180,7 +180,7 @@ The plugin is in English; the content it generates is in **your** language. If t
 unknown the skill asks, and the answer is stored outside the repository:
 
 ```bash
-python3 ~/.mc-workflow/workitem/scripts/workitem_output.py language --set tr
+python3 ~/mc-workflow-plugins/workitem/scripts/workitem_output.py language --set tr
 ```
 
 Templates hold canonical English labels and `references/labels.md` maps them to another language,
@@ -224,7 +224,7 @@ worked.
 ### Commit material for a result note
 
 ```bash
-python3 ~/.mc-workflow/workitem/scripts/workitem_output.py commits \
+python3 ~/mc-workflow-plugins/workitem/scripts/workitem_output.py commits \
   --since 2026-08-17 --repo ~/project-a --repo ~/project-b
 ```
 
