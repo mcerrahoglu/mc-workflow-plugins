@@ -69,6 +69,20 @@ that needs touching.
 | ACTUAL HOURS | GERÇEKLEŞEN SAAT |
 | VARIANCE | SAPMA |
 
+## Tracker fields chosen by the user
+
+These are not generated, but the checklist in `fields.md` names them, so the local wording is
+needed to match what the tracker shows on screen.
+
+| English | Turkish |
+|---|---|
+| PRIORITY | ÖNCELİK |
+| STATUS | DURUM |
+| SPRINT | SPRİNT |
+| WORK PACKAGE | İŞ PAKETİ |
+| DUE DATE | TERMİN |
+| ASSIGNEE | ATANANLAR |
+
 ## Values
 
 | English | Turkish |

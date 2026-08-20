@@ -101,56 +101,34 @@ def find_blanks(content):
 
 
 def fields_text(args, blanks, language):
+    """Emit data only: no prose, so nothing here needs translating.
+
+    The script cannot know the output language well enough to write sentences in it, and an
+    earlier version wrote English prose while claiming to honour `--lang`. Headings and field
+    names stay canonical English, exactly like the templates; the accompanying explanation is
+    given by the skill, in the user's language. Anything a reader needs as a sentence belongs
+    there, not here.
+    """
     lines = [
-        f"# Field selections — {args.title}",
+        f"# {args.title}",
         "",
-        f"Generated: {datetime.date.today().isoformat()}  ·  mode: {args.mode}"
-        f"  ·  language: {language}",
+        f"{datetime.date.today().isoformat()} · {args.mode} · {language}",
         "",
         "## Generated",
         "",
         "| Field | Value |",
         "|---|---|",
         f"| TITLE | {args.title} |",
-        f"| TYPE | {args.type or '_not given_'} |",
+        f"| TYPE | {args.type or '-'} |",
     ]
     if args.estimate_hours:
         lines.append(f"| ESTIMATE (hours) | {args.estimate_hours} |")
-    lines += ["", ]
-    if args.estimate_hours:
-        lines += [
-            f"Estimate basis: {args.rationale}",
-            "",
-            "> The estimate is a range, not a measurement, and many trackers attach it to the",
-            "> assignment: assign the person first, then enter it. Single-assignee assumption —",
-            "> with more than one assignee the split is yours.",
-            "",
-        ]
-    lines += [
-        "## Select in the tracker",
-        "",
-        "Not generated, because these depend on the project and the team:",
-        "",
-    ]
+        lines.append(f"| ESTIMATE BASIS | {args.rationale} |")
+    lines += ["", "## Select in the tracker", ""]
     lines += [f"- {field}" for field in SELECT_IN_TRACKER]
     lines += ["", "## Fill after pasting", ""]
-    if blanks:
-        lines.append("Kept in the note but left blank, because the value is not knowable here:")
-        lines.append("")
-        lines += [f"- {b}" for b in blanks]
-    else:
-        lines.append("Nothing left blank.")
-    lines += [
-        "",
-        "## Pasting",
-        "",
-        "1. Open the content file and copy all of it.",
-        "2. Create a **blank page** in the tracker and paste there — do not pick the tracker's",
-        "   own template and fill cells one by one.",
-        "3. Save, then reload the page and check the tables survived.",
-        "4. Attach any output files or screenshots the note refers to.",
-        "",
-    ]
+    lines += [f"- {b}" for b in blanks] if blanks else ["- (none)"]
+    lines.append("")
     return "\n".join(lines) + "\n"
 
 

@@ -78,7 +78,19 @@ python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" write --mode note \
 `In Progress` and record what is open in the note. Valid values are in
 `references/field-reference.md`.
 
-## 6. Tell the user
+## 6. Tell the user — in the output language
 
-The file path, the suggested status and why, what was left blank, and **which files to attach**
-to the page — output logs, screenshots, exported results.
+`fields.md` carries **data only**: canonical English headings and field names, no sentences. The
+script cannot write prose in the user's language, so the explanation is yours to give, in the
+chosen language.
+
+Report:
+
+- The file paths.
+- The suggested status and why it is suggested.
+- Which fields to select in the tracker, named the way the tracker shows them — local wording in
+  `references/labels.md` under "Tracker fields chosen by the user".
+- What was left blank and needs filling.
+- **Which files to attach** to the page: output logs, screenshots, exported results.
+- How to paste: copy the whole content file into a **blank page**, not into the tracker's own
+  template. Save, reload, and check the tables survived.

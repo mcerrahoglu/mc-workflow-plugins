@@ -70,9 +70,21 @@ python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" write --mode issue \
   --estimate-hours "3-5" --rationale "<what the estimate rests on>" < content.md
 ```
 
-## 7. Tell the user
+## 7. Tell the user — in the output language
 
-The file path, which fields to select in the tracker, what was left blank, and the basis of the
-estimate. Paste into a **blank page**, not into the tracker's own template — a Markdown pipe
-table becomes a real table on paste, so one paste is enough and the result looks native. Save,
-reload, and check the tables survived.
+`fields.md` carries **data only**: canonical English headings and field names, no sentences. The
+script cannot write prose in the user's language, so the explanation is yours to give, in the
+language chosen in step 1. Do not leave the user to read an English checklist.
+
+Report:
+
+- The file paths.
+- Which fields to select in the tracker. Name them the way the tracker shows them — the local
+  wording is in `references/labels.md` under "Tracker fields chosen by the user".
+- What was left blank and needs filling.
+- The estimate and what it rests on, with the caveat: it is a range, not a measurement. Many
+  trackers attach it to the assignment, so assign the person first and enter it after. Where
+  more than one person is assigned, splitting it is the user's call.
+- How to paste: open the content file, copy all of it, create a **blank page** in the tracker and
+  paste there — not into the tracker's own template, cell by cell. Save, reload, and check the
+  tables survived.
