@@ -16,7 +16,7 @@
 | 2 | | | | 🟪 Pending |
 | 3 | | | | 🟪 Pending |
 
-Status: ✅ Passed · ❌ Failed · 🟪 Pending
+Status: ✅ Passed · ⚠️ Partial · ❌ Failed · 🟪 Pending
 
 ### Findings / Notes
 

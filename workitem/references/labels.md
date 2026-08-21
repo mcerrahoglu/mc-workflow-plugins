@@ -96,6 +96,9 @@ needed to match what the tracker shows on screen.
 | PARENT ISSUE | ÜST KONU |
 | LABELS | ETİKETLER |
 | SUB-TASK | ALT GÖREV |
+| EK-<n> | EK-<n> |
+| Detail annex for | Detay eki |
+| ATTACHMENTS | EKLER |
 | SPENT | HARCANAN |
 
 ## Values
@@ -103,6 +106,7 @@ needed to match what the tracker shows on screen.
 | English | Turkish |
 |---|---|
 | ✅ Passed | ✅ Geçti |
+| ⚠️ Partial | ⚠️ Kısmen |
 | ❌ Failed | ❌ Kaldı |
 | 🟪 Pending | 🟪 Bekliyor |
 | ☐ Success | ☐ Başarılı |

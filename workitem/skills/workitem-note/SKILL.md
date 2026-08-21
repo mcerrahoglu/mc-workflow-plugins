@@ -32,8 +32,8 @@ minutes, anything else -> task note.
 - Do not borrow a heading from another template: an incident note has no "Work done", a task note
   has no checklist table.
 - The template being small **constrains how much belongs in the note.** Where the analysis does
-  not fit, compress it and say the detail is attached — the page has an attachments area. Do not
-  grow the note to fit the analysis.
+  not fit, compress the note and put the rest in an annex — but see section 5: an annex is
+  something you **produce**, never something you ask the user to find.
 
 ## 3. Gather the material
 
@@ -63,7 +63,32 @@ incident's log lines, times and who reported it; a meeting's attendees, decision
 - Person names are absent from the reference on purpose. Inventing one puts wrong data in a
   company record.
 
-## 5. Check it — mandatory
+## 5. Overflow goes into an annex you produce
+
+Never write "the details are attached" or "upload the measurements" and stop there. The user
+cannot know what to attach; naming a thing without producing it is the same failure as naming a
+field without filling it.
+
+So where content does not fit the note, write an annex file next to the other two, following
+`templates/annex.md`:
+
+- named `ek-<n>-<slug>.md` in Turkish, `annex-<n>-<slug>.md` in English
+- titled `EK-<n> — <name>`, with a line under the title saying which work item it belongs to,
+  where the material came from, and whether anything was shortened
+- free in shape: an annex has no fixed structure, because what it holds depends on the work.
+  Only the note has a fixed structure.
+
+Typical contents: test transcripts, full measurement output, command output, per-case
+breakdowns, commit lists — the things that were compressed out of the note.
+
+The note must then **name the annex** in its own text, so the two are linked: "Detail: EK-1 —
+<name>". Tell the user the annex can go on the page as its own titled section, or be uploaded to
+the attachments area — either way the title carries the link.
+
+If something genuinely cannot be produced here — a screenshot, a file only on the user's
+machine — then say exactly what to capture and where it goes. Never "attach the details".
+
+## 6. Check it — mandatory
 
 ```bash
 python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" check \
@@ -75,13 +100,13 @@ and the sequence of heading levels. It exits non-zero and names what is off. **F
 not extend the template.** It compares shape rather than wording, so it works in any language; a
 renamed heading is the one deviation it cannot see, so that one is on you.
 
-## 6. Hours
+## 7. Hours
 
 Estimate versus spent only makes sense if both are known. **Spent hours come from the user
 alone** — ask. If the answer does not come, say so and leave it out; do not write 0 and do not
 derive it from commit timestamps, which show elapsed time, not time worked.
 
-## 7. Work outside the plan -> a sub-task
+## 8. Work outside the plan -> a sub-task
 
 A sub-task records work that was **not planned**, came up while doing the planned work, and cost
 extra hours. Recording it keeps that time visible as its own line instead of buried in the parent's
@@ -121,7 +146,11 @@ section, where the form is identical to the normal one — and here are its two 
 Do not fold unplanned work into the parent's note as a paragraph. That is precisely what the
 sub-task exists to prevent.
 
-## 8. Tell the user, in the output language
+## 9. Tell the user, in the output language
 
-The file path, the suggested closing status and why, what was left blank, which files to attach
-to the page, and any sub-tasks to open with their extra hours.
+The file paths — including any annex you produced — the suggested closing status and why, what
+was left blank, and any sub-tasks to open with their extra hours.
+
+For each annex say what it holds and that it goes on the page as its own titled section or into
+the attachments area. If something has to be captured by hand (a screenshot, a file only on the
+user's machine), name that thing specifically.

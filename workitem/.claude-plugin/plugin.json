@@ -1,5 +1,5 @@
 {
   "name": "workitem",
   "description": "Generates paste-ready content for an issue tracker: a work item definition before the work (title, description, type) and a result note after it (task, test, incident or meeting templates). Tracker-independent and writes nothing anywhere; output language is asked for and honoured.",
-  "version": "1.4.0"
+  "version": "1.5.0"
 }
