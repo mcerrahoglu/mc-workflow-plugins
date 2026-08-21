@@ -1,14 +1,25 @@
 # EK-<n> — <annex title>
 
-> Detail annex for <work item>. <What this contains and how to read it: where the material
-> came from, whether anything was shortened, what a marker in it means.>
+> Detail annex for <work item>. <Where the material came from and how to read it: what was
+> measured, over what population, and whether anything was shortened.>
 
-## <section>
+## <what was measured>
 
-<The detail that does not fit the note: transcripts, full measurement output, command output,
-per-case breakdowns, commit lists.>
+<One line on the method: the population, the tool, the date. Then the table.>
 
-## <section>
+| <dimension> | <value> |
+|---|---|
+| | |
 
-<More of the same. Sections here are free: an annex has no fixed shape, because what it holds
-depends on the work. Only the note it belongs to has a fixed shape.>
+## <comparison>
+
+<A/B or before and after, with the reason the comparison is valid: same input, one variable
+changed.>
+
+| <case> | <before> | <after> |
+|---|---|---|
+| | | |
+
+<An annex has no fixed section list — what it holds depends on the work. It holds measurement
+evidence: comparisons, breakdowns, the counts behind a claim. Commands, code and commit lists
+belong in the code repository, not here; an annex is read, not executed.>

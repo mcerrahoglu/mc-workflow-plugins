@@ -78,8 +78,17 @@ So where content does not fit the note, write an annex file next to the other tw
 - free in shape: an annex has no fixed structure, because what it holds depends on the work.
   Only the note has a fixed structure.
 
-Typical contents: test transcripts, full measurement output, command output, per-case
-breakdowns, commit lists — the things that were compressed out of the note.
+**An annex holds measurement evidence, not engineering detail.** What belongs: A/B comparisons,
+before and after tables, metric breakdowns, per-case results, the counts behind a claim — the
+numbers a reader can weigh without running anything. These are exactly what would crowd the note
+and pull it away from its purpose, while still needing to be shown.
+
+What does not belong: commands to run, code, configuration, commit lists. Those live in the code
+repository and its history; a tracker annex is read, not executed. If a claim rests on a command,
+put the command's **result** in the annex and leave the command where the code is.
+
+Give each table a line saying what was measured and how, so a number can be interpreted a month
+later.
 
 The note must then **name the annex** in its own text, so the two are linked: "Detail: EK-1 —
 <name>". Tell the user the annex can go on the page as its own titled section, or be uploaded to
