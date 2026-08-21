@@ -33,6 +33,19 @@ CONFIG_PATH = pathlib.Path.home() / ".workitem" / "config.json"
 TEMPLATES = pathlib.Path(__file__).resolve().parent.parent / "templates"
 
 SELECT_IN_TRACKER = ["PRIORITY", "STATUS", "SPRINT", "WORK PACKAGE", "DUE DATE", "ASSIGNEE"]
+
+# File names follow the output language, so the directory reads the way the user works. These
+# are identifiers, not prose: a new language is one line here. ASCII only, to keep the names
+# portable across filesystems.
+FILE_NAMES = {
+    "tr": {"issue": "gorev", "note": "not", "fields": "alanlar"},
+}
+DEFAULT_FILE_NAMES = {"issue": "issue", "note": "note", "fields": "fields"}
+
+
+def file_name(kind, language):
+    return FILE_NAMES.get((language or "").lower(), DEFAULT_FILE_NAMES).get(
+        kind, DEFAULT_FILE_NAMES[kind]) + ".md"
 PLACEHOLDER = "…"                       # the single character a blank section carries
 
 _FOLD = str.maketrans({
@@ -132,6 +145,94 @@ def fields_text(args, blanks, language):
     return "\n".join(lines) + "\n"
 
 
+# ------------------------------------------------------------------- structure checking
+def first_table_rows(text):
+    """Count data rows of the first table: the information table of a note template."""
+    rows, in_table, seen_any = 0, False, False
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("|"):
+            in_table = True
+            cells = [c.strip() for c in stripped.strip("|").split("|")]
+            if all(set(c) <= {"-", ":"} and c for c in cells):
+                continue                                   # separator
+            if not seen_any:
+                seen_any = True                            # header row
+                continue
+            rows += 1
+        elif in_table and not stripped:
+            break                                          # first table ended
+    return rows
+
+
+def heading_shape(text):
+    """Heading levels in order. Language independent: counts shape, not wording."""
+    shape = []
+    in_fence = False
+    for line in text.split("\n"):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        stripped = line.lstrip()
+        if stripped.startswith("#"):
+            shape.append(len(stripped) - len(stripped.lstrip("#")))
+    return shape
+
+
+def check_structure(content, template_name):
+    """Return a list of problems; empty means the note matches the template exactly.
+
+    Compares shape rather than wording, so it works whatever language the note is in.
+    A renamed heading is not caught; an added row or an invented section is, and those are
+    the deviations that actually happened.
+    """
+    template = TEMPLATES / f"{template_name}.md"
+    if not template.is_file():
+        available = ", ".join(sorted(t.stem for t in TEMPLATES.glob("*.md")))
+        return [f"unknown template `{template_name}`; available: {available}"]
+    want = template.read_text(encoding="utf-8")
+
+    problems = []
+    want_rows, got_rows = first_table_rows(want), first_table_rows(content)
+    if want_rows != got_rows:
+        problems.append(
+            f"information table has {got_rows} rows, the template has {want_rows}. "
+            f"The row set is fixed: add none, remove none.")
+    want_shape, got_shape = heading_shape(want), heading_shape(content)
+    if want_shape != got_shape:
+        problems.append(
+            f"heading shape is {got_shape}, the template is {want_shape}. "
+            f"Sections are fixed: invent none, drop none, and do not change their level.")
+    return problems
+
+
+def issue_guide(args, content, language):
+    """One file to work from: title, right-panel values, description. Data only."""
+    lines = [
+        f"# {args.title}",
+        "",
+        f"{datetime.date.today().isoformat()} · issue · {language}",
+        "",
+        "## Title",
+        "",
+        args.title,
+        "",
+        "## Right panel",
+        "",
+        "| Field | Value |",
+        "|---|---|",
+        f"| TYPE | {args.type or '-'} |",
+    ]
+    if args.estimate_hours:
+        lines.append(f"| ESTIMATE (hours) | {args.estimate_hours} |")
+        lines.append(f"| ESTIMATE BASIS | {args.rationale} |")
+    lines += [f"| {field} | select in the tracker |" for field in SELECT_IN_TRACKER]
+    lines += ["", "## Description", "", content.rstrip(), ""]
+    return "\n".join(lines) + "\n"
+
+
 # ------------------------------------------------------------------------------ commands
 def cmd_write(args):
     if args.estimate_hours and not args.rationale:
@@ -147,20 +248,36 @@ def cmd_write(args):
         sys.exit("error: no output language known. Pass --lang, or store one with "
                  "`workitem_output.py language --set <code>`.")
 
+    if args.mode == "note":
+        if not args.template:
+            sys.exit("error: --template is required for a note, so its structure can be "
+                     "checked against the template it must match.")
+        problems = check_structure(content, args.template)
+        if problems:
+            sys.exit("error: the note does not match `" + args.template + "`:\n  - "
+                     + "\n  - ".join(problems)
+                     + "\nNothing was written. Fix the structure, do not extend the template.")
+
     target = OUTPUT_ROOT / f"{datetime.date.today().isoformat()}-{slug(args.title)}"
     target.mkdir(parents=True, exist_ok=True)
-    name = "issue" if args.mode == "issue" else "note"
-    content_path = target / f"{name}.md"
+
+    if args.mode == "issue":
+        path = target / file_name("issue", language)
+        path.write_text(issue_guide(args, content, language), encoding="utf-8")
+        print(f"Written:\n  {path}")
+        print("One file, in paste order: title, right panel values, description.")
+        return 0
+
+    content_path = target / file_name("note", language)
     content_path.write_text(content, encoding="utf-8")
     blanks = find_blanks(content)
-    fields_path = target / "fields.md"
+    fields_path = target / file_name("fields", language)
     fields_path.write_text(fields_text(args, blanks, language), encoding="utf-8")
-
     print(f"Written:\n  {content_path}\n  {fields_path}")
+    print(f"Structure matches `{args.template}`.")
     if blanks:
-        print(f"\nLeft blank for you ({len(blanks)}): " + ", ".join(blanks[:6])
+        print(f"Left blank for you ({len(blanks)}): " + ", ".join(blanks[:6])
               + (" ..." if len(blanks) > 6 else ""))
-    print("Select in the tracker: " + ", ".join(SELECT_IN_TRACKER))
     return 0
 
 
@@ -224,6 +341,7 @@ def main():
     w.add_argument("--estimate-hours", dest="estimate_hours")
     w.add_argument("--rationale")
     w.add_argument("--lang")
+    w.add_argument("--template", help="note template the structure must match")
     w.add_argument("--content-file", type=pathlib.Path, dest="content_file")
     w.set_defaults(func=cmd_write)
 

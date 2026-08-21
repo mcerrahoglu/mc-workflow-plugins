@@ -70,6 +70,11 @@ python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" write --mode issue \
   --estimate-hours "3-5" --rationale "<what the estimate rests on>" < content.md
 ```
 
+This writes **one file**, in the order the tracker asks for it: the title, then the right-panel
+values (generated ones filled in, the rest marked as chosen in the tracker), then the description
+to paste into the editor. The file is named in the output language — `gorev.md` in Turkish,
+`issue.md` in English.
+
 ## 7. Tell the user — in the output language
 
 `fields.md` carries **data only**: canonical English headings and field names, no sentences. The

@@ -7,9 +7,6 @@
 | **START** | |
 | **TARGET DATE** | |
 | **STATUS** | In progress |
-| **ESTIMATE** | |
-| **ACTUAL HOURS** | |
-| **VARIANCE** | |
 
 ### Work Done / Description
 

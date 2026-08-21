@@ -52,7 +52,22 @@ which is not time worked.
 
 ## 4. Write the note
 
-Fill the template, then:
+**The structure is fixed by the template. It is not a starting point to build on.**
+
+- Use the template for the item's type and no other. Do not borrow a heading from a different
+  template: an incident note has no "Work Done / Description", a task note has no checklist table.
+- **Add no rows to the information table.** The row set is exactly what the template lists.
+  Effort is a tracker field, not a note row — the estimate belongs in `fields.md`. If the user
+  gives actual hours, write them as a sentence inside `Notes`, not as a new row.
+- **Add no sections.** Do not invent `Symptom`, `Diagnosis`, `Verification`, `Root cause` or
+  anything else, however useful it would be. Findings go inside the sections that exist.
+- **Rename nothing.** Headings and row labels come from the template, translated only through
+  `references/labels.md`.
+- The template being small is a constraint on how much belongs in the note. Where the analysis
+  does not fit, compress it and say the detail is attached — the page has an attachments area.
+  Do not grow the note to fit the analysis.
+
+Then fill it:
 
 - **Measurements as before -> after** on a named input: `1297 -> 770 s, recall unchanged at 0.88`.
   Never present an unmeasured claim as measured.
@@ -61,17 +76,29 @@ Fill the template, then:
   `🟪 Pending`. If any step failed or is pending, the Findings section is mandatory.
 - **Impersonal voice**, no conversation references — the same line as the commit rules.
 - In an incident note, if the root cause is not yet known say so; do not present a guess as one.
-- **Delete a section that does not apply. Keep a section that applies but whose value is not
-  knowable here and leave it blank** — tested by, owner, dates, reported by, witness names and
-  contacts, attendee names, minutes taker, time, location. Person names are deliberately absent
-  from the reference; inventing one puts wrong data in a company record.
+- **Nothing is deleted, nothing is added.** Where a value is not knowable here, keep the row or
+  section and leave it blank — tested by, owner, dates, reported by, witness names and contacts,
+  attendee names, minutes taker, time, location. Person names are deliberately absent from the
+  reference; inventing one puts wrong data in a company record. A section that seems irrelevant
+  still stays: the tracker's page has that section, so the note has it too.
 
 ## 5. Write the output and suggest a status
 
 ```bash
 python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" write --mode note \
-  --title "<title>" --type "<type>" < content.md
+  --title "<title>" --type "<type>" --template <task_note|test_note|incident_note|meeting_minutes> \
+  < content.md
 ```
+
+`--template` is **required** and is not a formality: the script compares the note's shape against
+that template — the number of information-table rows and the sequence of heading levels — and
+**refuses to write anything** if they differ, listing what is off. An added row, an invented
+section or a heading borrowed from another template is rejected before it reaches a file. The
+check compares shape, not wording, so it works in any output language; a renamed heading is the
+one deviation it cannot see, so that one is on you.
+
+The output directory is named in the output language: `not.md` plus `alanlar.md` in Turkish,
+`note.md` plus `fields.md` in English.
 
 **Status suggestion** (a suggestion, not a selection — the user sets it): done and verified ->
 `Done`; done but awaiting verification -> `In Review` or `Test`; partly done -> leave
