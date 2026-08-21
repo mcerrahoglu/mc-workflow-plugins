@@ -187,77 +187,76 @@ ids they share, so a migration can be proven not to change behaviour it was not 
 ## Plugin: `workitem`
 
 Turns work into content for an issue tracker. **Tracker-independent and writes nothing anywhere:**
-no API, no credentials, no requests. It produces files and you paste them.
+no API, no credentials, no requests. Two files per work item, entered by hand.
 
 ### Two commands
 
 | Command | When | Produces |
 |---|---|---|
-| `/workitem-draft` | Before starting | Title, description, type, effort estimate with its basis |
-| `/workitem-note` | When finished | Result note plus a suggested closing status |
+| `/workitem-draft` | Before starting | The work item definition: title, right-panel values, description |
+| `/workitem-note` | When finished | The result note, plus sub-tasks for unplanned work |
 
-Only **three fields are generated**: title, description, type. Priority, status, sprint, work
-package, due date and assignee depend on the project and the team, so you choose them in the
-tracker. A value that is not on a list is never invented; the output says so instead.
+Only **type, status and estimate** are decided. Priority, sprint, work package, due date, assignee
+and labels depend on the project and the team, so they are marked as chosen in the tracker. A value
+that is not on a list is never invented.
 
-### Output language
+### The files are written by the skill, not the script
 
-The plugin is in English; the content it generates is in **your** language. If the language is
-unknown the skill asks, and the answer is stored outside the repository:
+The output is in the user's language, and a script handed a language code as a string cannot
+compose prose in it — an earlier version tried and produced English headings while claiming
+otherwise. So the skill writes the files, following `templates/` for structure and
+`references/labels.md` for wording, and the script keeps only the jobs that need code:
 
 ```bash
-python3 ~/mc-workflow-plugins/workitem/scripts/workitem_output.py language --set tr
+# refuse a note whose shape does not match its template
+workitem_output.py check --file <note> --template <task_note|test_note|incident_note|meeting_minutes>
+
+# collect commit material for a result note (--since is required)
+workitem_output.py commits --since 2026-08-17 --repo ~/project-a --repo ~/project-b
+
+# remember the output language, so the skill asks once
+workitem_output.py language --set tr
 ```
 
-Templates hold canonical English labels and `references/labels.md` maps them to another language,
-so wording stays consistent across notes. Adding a column there is all a new language needs.
-Commit messages are unaffected — those are English by the rules spec.
+### The note structure is enforced, not merely requested
 
-### Templates
+A tracker's note page has a fixed field set. Two notes written in real use drifted from it: one
+added a row, another mixed two templates and invented four sections of its own. An instruction to
+"fill the template" had already failed twice, so the check is mechanical: it compares the number of
+information-table rows and the sequence of heading levels against the template and exits non-zero
+naming what is off. It compares shape rather than wording, so it holds in any output language; a
+renamed heading is the one deviation it cannot see.
 
-`templates/` holds `issue_description`, `task_note`, `test_note`, `incident_note` and
-`meeting_minutes` as Markdown with GFM pipe tables. Paste the whole note into a **blank page**
-rather than picking your tracker's own template and filling cells: on paste a pipe table becomes
-a real table, so one paste is enough and the result looks native.
+### Sub-tasks are for unplanned work
 
-**Verify the format in your own tracker once.** Paste a small probe — a heading, bold text, a
-list, a two-column pipe table, an emoji — save, reload, and see what survived. Editors differ;
-some accept Markdown and reject HTML. If yours needs something else only the templates change,
-because the writer script is format-agnostic.
-
-### Fields left blank on purpose
-
-A field that is meaningful but whose value cannot be known here is **kept and left empty**, never
-guessed: tested by, owner, dates, reported by, witness names and contacts, attendee names,
-minutes taker, time, location. Person names are deliberately absent from the reference. A section
-that does not apply to the work is deleted instead — "none" is not written.
-
-Empty table cells stay empty and free-text sections carry a single `…`, so an unfinished note is
-visibly unfinished. Alongside the content the script writes `fields.md` with two lists: what to
-select in the tracker, and what was left blank. That second list is derived from the generated
-content, so it stays correct when a template changes.
+A sub-task records work that was not in the plan, came up while doing the planned work, and cost
+extra hours — so that time is visible as its own line rather than buried in the parent's note. At
+closing, `/workitem-note` proposes one for each such item: its own definition file naming the
+parent, plus its own checked note.
 
 ### Effort
 
-The estimate is a **range with its basis**, not a bare number — `--estimate-hours` is refused
-without `--rationale`, because a bare figure reads as a measurement and an estimate is not one.
-Many trackers attach the estimate to the assignment, so assign first, then enter it.
+The estimate is a **range with its basis** — a bare figure reads as a measurement and an estimate
+is not one. The tracker attaches it to the assignment, so assign first, then enter it. Spent hours
+come from the user alone: commit timestamps show elapsed time, which is not time worked.
 
-Actual hours come from you alone. If you do not give them the actual and variance rows are
-removed rather than filled with a guess: commit timestamps show elapsed time, which is not time
-worked.
+### Templates and the format probe
 
-### Commit material for a result note
+`templates/` holds `work_item` plus four note templates as Markdown with GFM pipe tables. Paste a
+note into a **blank page** rather than picking the tracker's own template and filling cells: on
+paste a pipe table becomes a real table, so one paste is enough and the result looks native.
 
-```bash
-python3 ~/mc-workflow-plugins/workitem/scripts/workitem_output.py commits \
-  --since 2026-08-17 --repo ~/project-a --repo ~/project-b
-```
+**Verify the format in your own tracker once.** Paste a small probe — a heading, bold text, a list,
+a two-column pipe table, an emoji — save, reload, and see what survived. Editors differ; some
+accept Markdown and reject HTML. If yours needs something else only the templates change, because
+the script does not generate content.
 
-`--since` is required. "The commits from this session" is an undefined selector when work spans
-several repositories and several days.
+### Fields left blank on purpose
 
----
+A field that is meaningful but whose value cannot be known here is kept and left empty, never
+guessed: tested by, owner, dates, reported by, witness and attendee names. Person names are
+deliberately absent from the reference. Empty cells stay empty and free-text sections carry a
+single ellipsis, so an unfinished note is visibly unfinished.
 
 ## File map
 
@@ -282,10 +281,11 @@ workitem/
   skills/workitem-draft/SKILL.md  /workitem-draft  (before the work)
   skills/workitem-note/SKILL.md   /workitem-note   (after the work)
   references/field-reference.md   types, statuses, estimate mechanics
-  references/labels.md            English -> other language labels
+  references/labels.md            English -> other language wording
   references/ears.md              requirement patterns
-  templates/*.md                  five note templates
-  scripts/workitem_output.py      writer + commit collector
+  templates/work_item.md          the definition file's structure
+  templates/*_note.md, meeting_minutes.md   the four note structures
+  scripts/workitem_output.py      structure checker + commit collector
 ```
 
 ---

@@ -83,6 +83,21 @@ needed to match what the tracker shows on screen.
 | DUE DATE | TERMİN |
 | ASSIGNEE | ATANANLAR |
 
+## Work item file structure
+
+| English | Turkish |
+|---|---|
+| Content for the tracker's New issue screen | Bu dosya tracker'daki Yeni Konu ekranına girilecek içeriktir |
+| ► TITLE | ► KONU BAŞLIĞI |
+| ► RIGHT PANEL FIELDS | ► SAĞ PANEL ALANLARI |
+| ► DESCRIPTION (paste into the editor) | ► AÇIKLAMA (editöre yapıştır) |
+| *select in the tracker* | *tracker'da seç* |
+| **Estimate basis:** | **Tahminin dayanağı:** |
+| PARENT ISSUE | ÜST KONU |
+| LABELS | ETİKETLER |
+| SUB-TASK | ALT GÖREV |
+| SPENT | HARCANAN |
+
 ## Values
 
 | English | Turkish |
