@@ -20,7 +20,12 @@ in chat. Translate the structural wording with `references/labels.md` — it hol
 titles, the field names and the fixed phrases. Commit messages are unaffected; those are English
 by the rules plugin's spec.
 
-## 2. Understand the work
+## 2. Understand the work — and whether this is a sub-task
+
+If this is being written **mid-work**, because something unplanned came up that needs planning of
+its own, it is a sub-task: name the parent in the parent-issue row and put it in a directory named
+after the parent (`<parent-number>.1-<slug>/`). `/workitem-note` carries the judgement about when
+unplanned work deserves this treatment.
 
 What will be done and why? If it is unclear, **ask**. A field filled on a guess becomes a record
 someone corrects later.

@@ -81,26 +81,45 @@ Estimate versus spent only makes sense if both are known. **Spent hours come fro
 alone** — ask. If the answer does not come, say so and leave it out; do not write 0 and do not
 derive it from commit timestamps, which show elapsed time, not time worked.
 
-## 7. Work that happened outside the plan -> a sub-task
+## 7. Work outside the plan -> a sub-task
 
-A sub-task exists for exactly this: work that was **not planned**, came up while doing the planned
-work, and took extra time. It records "this was not in the plan, it came up, and it cost N hours
-on top".
+A sub-task records work that was **not planned**, came up while doing the planned work, and cost
+extra hours. Recording it keeps that time visible as its own line instead of buried in the parent's
+note.
 
-So at closing, ask yourself — and where unclear, ask the user: **did anything get done that the
-definition did not cover?** For each such thing, produce its own pair in a directory named after
-the parent, for example `<parent-number>.1-<slug>/`:
+**When it is opened does not matter. That it is recorded does.** Two paths, and choosing between
+them is your judgement, not the user's to chase:
+
+**It needs planning — raise it immediately.** Stop, say what came up, and propose opening the
+sub-task before continuing. Then do it, then return to the main plan. Use this path when the thing
+has scope of its own: it needs its own completion criteria, it changes the main work's scope or
+estimate, it blocks the main work, or it will cost enough time that someone reading the parent's
+note later would ask where those hours went. This is a plan-external situation, so the working
+rules already require reporting it; what this skill adds is that the record takes the shape of a
+sub-task.
+
+**It is small and contained — do not break the flow.** Fix it, finish the planned work, and at
+closing say: this came up, it was fixed, let us add it as a sub-task. Use this path when it has no
+scope of its own and no planning to do — a one-line fix, an obvious oversight, a few minutes.
+
+The failure to avoid is silence: fixing something unplanned and mentioning it nowhere. If you
+cannot tell which path applies, say so and let the user choose — an unnecessary question costs a
+sentence, an unrecorded hour costs the report.
+
+### Producing it
+
+For each unplanned item, a pair in a directory named after the parent, for example
+`<parent-number>.1-<slug>/`:
 
 - a definition file following `templates/work_item.md`, with the parent named in the parent-issue
-  row, status already done, and the extra hours as its estimate and spent value
+  row, the status it actually has, and the extra hours as its estimate and spent value
 - a result note for its own type, checked like any other note
 
-Then tell the user plainly: this came up outside the plan, open it as a sub-task of `<parent>` —
-from the parent issue's sub-tasks section, where the form is identical to the normal one — and
-here are its two files.
+Then tell the user: this is a sub-task of `<parent>` — open it from the parent issue's sub-tasks
+section, where the form is identical to the normal one — and here are its two files.
 
-Do not fold unplanned work into the parent's note as a paragraph. The point of the sub-task is
-that the extra time is visible as its own line rather than buried.
+Do not fold unplanned work into the parent's note as a paragraph. That is precisely what the
+sub-task exists to prevent.
 
 ## 8. Tell the user, in the output language
 

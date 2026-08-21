@@ -29,7 +29,7 @@
       "name": "workitem",
       "source": "./workitem",
       "description": "Generates paste-ready content for an issue tracker: a work item definition before the work and a result note after it (task, test, incident or meeting templates). Tracker-independent, writes nothing anywhere, and asks which language the output should be in.",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "mcerrahoglu"
       },
