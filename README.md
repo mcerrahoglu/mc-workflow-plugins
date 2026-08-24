@@ -6,8 +6,8 @@ tracker.
 
 | Plugin | Version | What it does |
 |---|---|---|
-| `rules` | 1.2.0 | Loads engineering rules into every session and gates commit messages |
-| `workitem` | 1.1.0 | Generates work item definitions and result notes for any issue tracker |
+| `rules` | 1.3.0 | Loads engineering rules into every session and gates commit messages |
+| `workitem` | 1.7.0 | Generates work item definitions and result notes for any issue tracker |
 
 They are independent: install either one on its own. `workitem` does not need `rules`.
 
@@ -71,7 +71,8 @@ claude plugin marketplace update mc-workflow
 # 2) reinstall — `install` alone will not upgrade a plugin that is already installed
 claude plugin uninstall rules@mc-workflow && claude plugin install rules@mc-workflow
 # 3) prove it — output must be empty
-diff -r ~/mc-workflow-plugins/rules ~/.claude/plugins/cache/mc-workflow/rules/<new-version>
+diff -r -x __pycache__ ~/mc-workflow-plugins/rules \
+  ~/.claude/plugins/cache/mc-workflow/rules/<new-version>
 ```
 
 Skipping this is the easiest way to test the wrong copy of your own change. The old version
@@ -151,7 +152,11 @@ than passing silently. An unexpected error does the same. A malformed `structure
 to code defaults instead of dropping every commit to `ask`.
 
 **Scope.** Only the command line and the file given with `-F`/`--file`. A message typed in the
-editor, `-t <template>` and `commit.template` are outside its view.
+editor and `commit.template` are outside its view. `-m "$(cat <<'EOF' ... EOF)"` is resolved and
+judged — it is how a multi-line message is normally written, and skipping it left the structural
+check off for most of them. Anything else inside the substitution (a pipe, a second command)
+changes what git receives and is still skipped. `-t <template>` given with `-m` is judged, since
+git then ignores the template.
 
 ### Configuration
 
@@ -193,8 +198,12 @@ ids they share, so a migration can be proven not to change behaviour it was not 
 
 ## Plugin: `workitem`
 
-Turns work into content for an issue tracker. **Tracker-independent and writes nothing anywhere:**
+Turns work into content for an issue tracker. **Tracker-independent and writes nothing to any
+tracker:**
 no API, no credentials, no requests. Two files per work item, entered by hand.
+
+It does write locally: the generated files go to `~/workitem-output/<number>-<slug>/` and the
+chosen output language is remembered in `~/.workitem/config.json`. Nothing leaves the machine.
 
 ### Two commands
 

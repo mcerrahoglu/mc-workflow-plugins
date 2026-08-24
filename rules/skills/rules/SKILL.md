@@ -31,8 +31,9 @@ kept out of `RULES.md`, so they cost nothing until they are needed.
   issues (subject over the 72 target, non-imperative subject, capitalised subject, body line
   over 100). The reason names the rule id and the measured value.
 - **Gate scope:** the command line text and the file given with `-F`/`--file`. A message typed
-  in the editor, `-t <template>` and `commit.template` are outside its view — compliance there
+  in the editor and `commit.template` are outside its view — compliance there
   is on you.
+- **`-t <template>` given with `-m` IS judged:** git uses `-m` and ignores the template.
 - **What the gate deliberately does not judge:** a message it cannot measure. Shell expansion
   (`$(...)`, `${VAR}`, ANSI-C quoting), a message piped on stdin, `--fixup`/`--squash`
   supplements, and formats git generates itself (`Revert "..."`, `fixup! ...`, `Merge ...`)

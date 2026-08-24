@@ -54,7 +54,7 @@ assigned — the order is assign first, then enter the estimate.
 
 Output gives a **range with its basis** rather than a bare number
 (`3-5 h; six files touched, a comparable change took 4 h`). A bare figure reads as a measurement;
-an estimate is not one. `--estimate-hours` therefore requires `--rationale`.
+an estimate is not one.
 
 Single-assignee assumption: with more than one assignee the split is the user's call.
 

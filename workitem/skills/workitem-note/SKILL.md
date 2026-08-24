@@ -58,7 +58,8 @@ incident's log lines, times and who reported it; a meeting's attendees, decision
 - **Measurements as before -> after** on a named input. Never present an unmeasured claim as
   measured.
 - **In a test note the actual column carries evidence** — a measurement, a quote, output. "works"
-  is not evidence. Status values are exactly three: passed, failed, pending. If any step failed or
+  is not evidence. Status values are exactly the four the template's legend lists: passed, partial,
+  failed, pending. If any step failed, was partial or is pending,
   is pending, the findings section is mandatory.
 - Impersonal voice, no conversation references — the same line as the commit rules.
 - If a root cause is not yet known, say so; do not present a guess as one.
