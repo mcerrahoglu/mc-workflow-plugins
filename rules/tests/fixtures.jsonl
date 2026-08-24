@@ -74,3 +74,13 @@
 {"id": "pat-en-question-frame", "cmd": "git commit -F msg.txt", "expect": "deny", "files": {"msg.txt": "fix(ui): hide the panel\n\nQUESTION: why was it visible?\n"}, "note": "English narrative frame at line start"}
 {"id": "pat-en-first-person", "cmd": "git commit -m \"fix(ui): hide the panel\" -m \"I measured the render at 54.9 ms.\"", "expect": "ask", "note": "English first person singular is a soft hit"}
 {"id": "pat-en-ai-coauthor", "cmd": "git commit -m \"fix(x): y\" -m \"Co-authored-by: Claude <noreply@anthropic.com>\"", "expect": "deny", "note": "an AI co-author is blocked while humans are allowed"}
+{"id": "subst-heredoc-broken", "cmd": "git commit -m \"$(cat <<'EOF'\nRadar penceresi hatasi duzeltildi.\nGorunurluk esigi eklendi.\nEOF\n)\"", "expect": "deny", "note": "canonical multi-line form is now resolved instead of skipped"}
+{"id": "subst-heredoc-clean", "cmd": "git commit -m \"$(cat <<'EOF'\nfeat(radar): list news whose score passes the visibility threshold\n\nThe list hid every item because the score was compared before it was set.\n\nEOF\n)\"", "expect": "pass", "note": "a compliant message in the same form still passes"}
+{"id": "subst-heredoc-pipe", "cmd": "git commit -m \"$(cat <<'A'\nFEAT(X): SHOUT\nA\n | tr A-Z a-z)\"", "expect": "pass", "note": "a pipe changes what git receives, so the body is not judged"}
+{"id": "subst-heredoc-tail-cmd", "cmd": "git commit -m \"$(cat <<'A'\nfeat(x): first\nA\n; echo more)\"", "expect": "pass", "note": "a second command after the terminator is not measurable"}
+{"id": "subst-heredoc-tabs", "cmd": "git commit -m \"$(cat <<-'A'\n\tBozuk mesaj.\n\tA\n)\"", "expect": "deny", "note": "<<- strips leading tabs before the body is measured"}
+{"id": "subst-heredoc-unquoted", "cmd": "git commit -m \"$(cat <<A\nfix: $HOME path\nA\n)\"", "expect": "pass", "note": "an unquoted delimiter lets the shell expand the body: skipped"}
+{"id": "subst-heredoc-two-m", "cmd": "git commit -m \"$(cat <<'A'\nfeat(x): add the missing retry\nA\n)\" -m \"$(cat <<'B'\nThe queue dropped work on restart.\nB\n)\"", "expect": "pass", "note": "each -m resolves to its own body, not the first one twice"}
+{"id": "subst-cat-file", "cmd": "git commit -m \"$(cat /tmp/msg.txt)\"", "expect": "pass", "note": "file contents are not knowable here: still skipped"}
+{"id": "template-with-m", "cmd": "git commit -t tpl.txt -m \"Fix(auth): Fixed the bug.\"", "expect": "deny", "note": "git uses -m and ignores the template, so -m is judged"}
+{"id": "template-alone", "cmd": "git commit -t tpl.txt", "expect": "pass", "note": "no message on the command line: nothing to measure"}

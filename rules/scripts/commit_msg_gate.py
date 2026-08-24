@@ -25,7 +25,8 @@ Decisions: hard pattern or structural error -> deny · soft pattern or style iss
 pattern file unreadable -> ask (fail closed, never a silent pass).
 
 Gate scope: only the command line text and the file given with `-F`/`--file`. A message
-written in the editor, `-t <template>` and `commit.template` are outside it.
+written in the editor and `commit.template` are outside it. `-t <template>` is inspected
+when `-m` is also given, because git then uses `-m` and ignores the template.
 
 Measured cost: about 20 ms per Bash call, of which roughly 15 ms is Python interpreter
 and module import; the gate's own work is 6.6 us and reading the pattern files 0.06 ms.
@@ -73,7 +74,7 @@ GIT_GLOBAL_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace",
                          "--exec-path", "--config-env", "--super-prefix"}
 # options that make `-m` something other than an authored subject line
 SKIP_COMMIT_OPTS = {"--fixup", "--squash", "-C", "-c", "--reuse-message",
-                    "--reedit-message", "-t", "--template"}
+                    "--reedit-message"}
 # short flags taking no argument, so they may be clustered before -m/-F
 CLUSTERABLE_FLAGS = "asevqnzpoi"
 
@@ -248,6 +249,48 @@ def heredoc_body(segment, from_pos=0):
     return None
 
 
+def cat_heredoc_body(token):
+    """Return the body of a `$(cat <<TOKEN ... TOKEN)` message argument, or None.
+
+    This is how a multi-line message is normally written, so skipping it left the
+    structural check off for most multi-line commits. Only the plain form is resolved:
+    anything else inside the substitution (a pipe, a second command) changes what git
+    actually receives, so those keep being skipped instead of guessed at.
+    """
+    inner = token.strip()
+    if not (inner.startswith("$(") and inner.endswith(")")):
+        return None
+    inner = inner[2:-1]
+    lead = re.match(r"\s*cat\s*(?=<<)", inner)
+    if not lead:
+        return None
+    op = HEREDOC_OP.search(inner, lead.end())
+    if not op or op.start() != lead.end():
+        return None
+    line_end = inner.find("\n", op.end())
+    if line_end == -1 or inner[op.end():line_end].strip():
+        return None                               # a redirect or pipe on the operator line
+
+    strip_tabs = op.group(1) == "-"
+    quoted = bool(op.group(2) or op.group(3))
+    delim = op.group(2) or op.group(3) or op.group(4)
+    lines = inner[line_end + 1:].split("\n")
+    body = []
+    for idx, line in enumerate(lines):
+        probe = line.lstrip("\t") if strip_tabs else line
+        if probe == delim:
+            if "".join(lines[idx + 1:]).strip():
+                return None                       # a pipe or another command follows
+            if strip_tabs:
+                body = [b.lstrip("\t") for b in body]
+            text = "\n".join(body)
+            if not quoted and EXPANSION_RE.search(text):
+                return None                       # unquoted delimiter: the shell expands it
+            return text
+        body.append(line)
+    return None                                   # unterminated
+
+
 def extract_message(segment, tokens, parsed_ok, arg_index, cwd):
     """Return (message, source).
 
@@ -325,10 +368,10 @@ def extract_message(segment, tokens, parsed_ok, arg_index, cwd):
 
     if not messages:
         return None, "NONE"
-    joined = "\n\n".join(messages)
-    if EXPANSION_RE.search(joined):
+    resolved = [m if not EXPANSION_RE.search(m) else cat_heredoc_body(m) for m in messages]
+    if any(r is None for r in resolved):
         return None, "EXPANDED"
-    return joined, "m"
+    return "\n\n".join(resolved), "m"
 
 
 # ------------------------------------------------------------- structural validation
