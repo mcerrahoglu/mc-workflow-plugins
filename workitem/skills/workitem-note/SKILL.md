@@ -33,7 +33,12 @@ version number, so never hardcode one. Structural wording is translated with
 | Meeting | `templates/meeting_minutes.md` |
 
 If unsure, follow the item's type: Test -> test note, Incident -> incident note, Meeting ->
-minutes, anything else -> task note.
+minutes, anything else -> task note. None of them fitting is what the tracker's blank page is
+for.
+
+Paste the **whole note into a blank page** rather than picking the tracker's own template and
+filling cells one at a time: a Markdown pipe table becomes a real table on paste, so the result
+looks native and it is one step.
 
 ## 2. The structure is fixed
 
@@ -190,6 +195,3 @@ was left blank, and any sub-tasks to open with their extra hours.
 Also give the reference for the commit footer: `Refs: #<the item's id>`. That footer is the only
 thing tying a commit back to the item, and the id lives here, not in the repository.
 
-For each annex say what it holds and that it goes on the page as its own titled section or into
-the attachments area. If something has to be captured by hand (a screenshot, a file only on the
-user's machine), name that thing specifically.

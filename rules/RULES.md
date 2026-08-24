@@ -10,9 +10,6 @@ judgement instead of ceremony.
 
 ## 1. Commit messages
 
-A commit message is the only durable record of **why** the code changed. The code already shows
-what it does; the message gives context to whoever reads `git log` six months later.
-
 **Commit text is written in English** — for tooling compatibility and readability outside the
 team. The project's `CLAUDE.md` may override this.
 
@@ -134,30 +131,23 @@ Worked good and bad examples: `references/commit-examples.md`.
   abstraction for single-use code. No flexibility or configurability that was not requested. No
   error handling for impossible scenarios. If you wrote 200 lines and 50 would do, rewrite it.
   Ask: would a senior engineer call this overcomplicated?
-- **General in approach, minimal in structure.** These two only look contradictory. Not
-  hardcoding a site-specific prefix and not building a three-class strategy pattern are both
-  correct at once: generality belongs to the approach, not to the amount of machinery.
+- **General in approach, minimal in structure.**
 - **inform > gate:** do not constrain the agent with hardcoded gates; improve the inputs to its
   decisions.
 - Never say "faster" or "better" without measuring. If you claim it, show the measurement.
 
 ## 6. Plan hardening
 
-- Before a plan is submitted for approval it is reviewed by independent subagents. The goal is
-  not approval but **finding gaps**: skipped steps, unverified assumptions, verification that
-  cannot be run.
+- A plan is reviewed by independent subagents before approval, to **find gaps** rather than to
+  agree: skipped steps, unverified assumptions, verification that cannot be run. The review gets
+  the plan text **and the real files**; a finding produced without reading them does not count.
 - **Threshold:** plans that touch more than three files, change schema, data or deployment, or
-  are expensive to reverse get reviewed. Single-file, reversible work skips it; say in one line
-  that it was skipped.
-- The review gets the plan text **and the real files** to be touched. A finding produced without
-  reading the files does not count.
+  are expensive to reverse get reviewed. Single-file, reversible work skips it; say so in one line.
 - A finding is not automatically correct. One not grounded in code, output or measurement is
   marked **speculative**; it is verified first, then enters the plan.
 - Every finding is closed one of three ways: **fixed** (folded into the plan) · **rejected** (one
   sentence of reasoning) · **out of scope** (recorded under deferred work). No finding is dropped
   silently.
-- If a second review round still produces new critical findings, the plan is inadequate: rewrite
-  it rather than patch it.
 
 ## 7. Surgical changes
 
@@ -180,7 +170,3 @@ Worked good and bad examples: `references/commit-examples.md`.
 - A strong criterion lets the work loop independently; a weak one ("make it work") forces
   constant clarification.
 
----
-
-**These rules are working if:** diffs contain fewer unrelated changes, fewer rewrites are caused
-by overcomplication, and clarifying questions arrive before the mistake rather than after it.

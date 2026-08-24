@@ -58,19 +58,6 @@ an estimate is not one.
 
 Single-assignee assumption: with more than one assignee the split is the user's call.
 
-## Note templates
-
-| Template | Contents | Use for |
-|---|---|---|
-| Task note | Work done, completion criteria, notes | Task, Feature, Improvement, Bug |
-| Test note | Test information plus a checklist table | Test, any verification run |
-| Incident note | What/where/when, witnesses, impact, actions | Incident |
-| Meeting minutes | Attendees, agenda, decisions, actions | Meeting |
-| Blank page | Nothing | When none of the above fits |
-
-Paste the **whole generated note into a blank page** rather than picking the tracker's own
-template and filling cells one by one: a Markdown pipe table becomes a real table on paste, so
-the result looks native and it is a single step.
 
 ## Fields the generator leaves empty
 

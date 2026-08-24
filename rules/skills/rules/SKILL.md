@@ -34,16 +34,11 @@ kept out of `RULES.md`, so they cost nothing until they are needed.
   in the editor and `commit.template` are outside its view — compliance there
   is on you.
 - **`-t <template>` given with `-m` IS judged:** git uses `-m` and ignores the template.
-- **What the gate deliberately does not judge:** a message it cannot measure. Shell expansion
-  (`$(...)`, `${VAR}`, ANSI-C quoting), a message piped on stdin, `--fixup`/`--squash`
-  supplements, and formats git generates itself (`Revert "..."`, `fixup! ...`, `Merge ...`)
-  are skipped rather than guessed at. A gate that rejects a legitimate command is worse than
-  no gate.
-- To change a rule, edit `RULES.md`. To change the forbidden patterns or the thresholds, edit
-  `patterns.json` — data, not code. Its `_contract` field is binding: text patterns are matched
-  against a lowercased ASCII-folded message, so no non-ASCII letters go in them, while
-  structural checks read the raw message.
-- Additional languages: drop a `patterns.<lang>.json` next to it and it is loaded as well.
-  `patterns.tr.json` ships as an example.
-- After any change run `python3 tests/run.py`; every case must pass. `--dump` writes decisions
-  and rule ids so a migration can be compared before and after with `tests/diff_baseline.py`.
+- **What the gate deliberately does not judge:** a message it cannot measure. `-m "$(cat <<'EOF'
+  ... EOF)"` **is** resolved and judged; anything else inside the substitution (a pipe, a second
+  command, an unquoted delimiter) changes what git receives and is skipped, as are `${VAR}`,
+  ANSI-C quoting, a message piped on stdin, `--fixup`/`--squash` supplements, and formats git
+  generates itself (`Revert "..."`, `fixup! ...`, `Merge ...`). A gate that rejects a legitimate
+  command is worse than no gate.
+- Changing the rules, the patterns or the thresholds is documented in the repository `README.md`,
+  not here: this skill is for confirming a rule or auditing compliance.

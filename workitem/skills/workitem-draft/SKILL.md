@@ -72,11 +72,8 @@ Rules for the description:
 
 ## 5. Estimate
 
-A **range with its basis**, never a bare number: `3-5 h; six files touched, a comparable change
-took 4 h`. A bare figure reads as a measurement and an estimate is not one.
-
-The tracker attaches the estimate to the assignment, so the order is assign the person, then
-enter it. With more than one assignee, splitting it is the user's call.
+A **range with its basis**, never a bare number. The mechanics, the worked example and the
+multiple-assignee case are in `references/field-reference.md`, already open from section 3.
 
 ## 6. Check it
 

@@ -21,9 +21,11 @@ print(json.dumps({
     "hookSpecificOutput": {
         "hookEventName": "SessionStart",
         "additionalContext": (
-            "The engineering rules below apply to this session (source: the rules "
-            "plugin). Project-specific rules live in the project's own CLAUDE.md and "
-            "win on conflict.\n\n" + text
+            # The precedence rule itself lives in RULES.md, which follows immediately.
+            # Stating it here as well put two copies side by side in the same context,
+            # one of them inside a Python string that a rule edit would not reach.
+            "The engineering rules below apply to this session "
+            "(source: the rules plugin).\n\n" + text
         ),
     },
 }, ensure_ascii=False))
