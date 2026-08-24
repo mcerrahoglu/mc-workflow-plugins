@@ -9,11 +9,17 @@ The step **before** the work. Produces **one file** and nothing else.
 
 ## 1. Output language
 
-If the language is unknown, **ask**, then store it:
+**Read the stored preference first** — it is stored so this is asked once, not every time:
 
 ```bash
-python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" language --set tr
+SCRIPT="${CLAUDE_PLUGIN_ROOT:-$(ls -d ~/.claude/plugins/cache/*/workitem/*/ 2>/dev/null | sort -V | tail -1)}/scripts/workitem_output.py"
+python3 "$SCRIPT" language            # prints the stored language, or says there is none
+python3 "$SCRIPT" language --set tr   # only when it was unknown and the user has said
 ```
+
+If `CLAUDE_PLUGIN_ROOT` is empty the fallback above finds the installed copy; the cache path
+carries a version number, so never hardcode one. If neither resolves, ask the user for the path
+rather than guessing.
 
 Everything the user reads is written in that language: the file, its headings, and what you say
 in chat. Translate the structural wording with `references/labels.md` — it holds the section
@@ -24,8 +30,10 @@ by the rules plugin's spec.
 
 If this is being written **mid-work**, because something unplanned came up that needs planning of
 its own, it is a sub-task: name the parent in the parent-issue row and put it in a directory named
-after the parent (`<parent-number>.1-<slug>/`). `/workitem-note` carries the judgement about when
-unplanned work deserves this treatment.
+after the parent (`<parent-number>.1-<slug>/`, then `.2`, `.3`). It earns a sub-task when it had
+its own scope, changed the parent's scope or estimate, blocked the parent, or would leave someone
+asking where those hours went; `/workitem-note` section 8 carries the full judgement, including
+when to interrupt rather than wait.
 
 What will be done and why? If it is unclear, **ask**. A field filled on a guess becomes a record
 someone corrects later.
@@ -73,8 +81,7 @@ enter it. With more than one assignee, splitting it is the user's call.
 ## 6. Check it
 
 ```bash
-python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" check \
-  --file <path to the file> --template work_item
+python3 "$SCRIPT" check --file <path to the file> --template work_item
 ```
 
 Same check the result note goes through, and for the same reason: the right panel has a fixed
@@ -83,9 +90,14 @@ the template.
 
 ## 7. Where the file goes
 
-`~/workitem-output/<number>-<slug>/` — one directory per work item, numbered the way the user
-numbers their work. The definition file is `gorev.md` in Turkish, `issue.md` in English. The
-result note joins it in the same directory later.
+`~/workitem-output/<number>-<slug>/` — one directory per work item. The definition file is
+`gorev.md` in Turkish, `issue.md` in English. The result note joins it in the same directory
+later, as `not.md` or `note.md`, and any annex as `ek-<n>-<slug>.md` or `annex-<n>-<slug>.md`.
+
+**The number comes from the user** — it has to match what the tracker gave the item. Ask for it.
+If they do not have it yet, offer one past the highest already in `~/workitem-output/` and say it
+is a placeholder to be renamed once the tracker assigns the real one. Do not infer a scheme from
+the directory listing: more than one may be in use there.
 
 ## 8. Tell the user, in the output language
 

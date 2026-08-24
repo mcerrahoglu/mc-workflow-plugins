@@ -5,8 +5,23 @@ description: Writes the result note for a finished work item, matching the track
 
 # Result note
 
-The step **after** the work. Produces **one file** per item, in the same directory as its
-definition. Output language and label translation work exactly as in `/workitem-draft`.
+The step **after** the work. Produces **one file** per item — `not.md` in Turkish, `note.md` in
+English — in the same directory as its definition, plus an annex when one is needed (section 5).
+
+## 0. Output language
+
+**Read the stored preference first**, the same way `/workitem-draft` does. That skill's text is
+not loaded here, so the command is repeated rather than referred to:
+
+```bash
+SCRIPT="${CLAUDE_PLUGIN_ROOT:-$(ls -d ~/.claude/plugins/cache/*/workitem/*/ 2>/dev/null | sort -V | tail -1)}/scripts/workitem_output.py"
+python3 "$SCRIPT" language            # prints the stored language, or says there is none
+```
+
+Ask only if nothing is stored, then store the answer with `language --set <code>`. If
+`CLAUDE_PLUGIN_ROOT` is empty the fallback finds the installed copy; the cache path carries a
+version number, so never hardcode one. Structural wording is translated with
+`references/labels.md`.
 
 ## 1. Choose the template
 
@@ -43,7 +58,7 @@ minutes, anything else -> task note.
 produces what the note needs:
 
 ```bash
-python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" commits \
+python3 "$SCRIPT" commits \
   --since <date|ref> --repo <path> [--repo <path> ...]
 ```
 
@@ -103,7 +118,7 @@ machine — then say exactly what to capture and where it goes. Never "attach th
 ## 6. Check it — mandatory
 
 ```bash
-python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" check \
+python3 "$SCRIPT" check \
   --file <path to the note> --template <task_note|test_note|incident_note|meeting_minutes>
 ```
 
@@ -171,6 +186,9 @@ sub-task exists to prevent.
 
 The file paths — including any annex you produced — the suggested closing status and why, what
 was left blank, and any sub-tasks to open with their extra hours.
+
+Also give the reference for the commit footer: `Refs: #<the item's id>`. That footer is the only
+thing tying a commit back to the item, and the id lives here, not in the repository.
 
 For each annex say what it holds and that it goes on the page as its own titled section or into
 the attachments area. If something has to be captured by hand (a screenshot, a file only on the

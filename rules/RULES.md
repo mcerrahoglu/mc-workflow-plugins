@@ -57,7 +57,8 @@ Breaking change: `<type>!:` or a `BREAKING CHANGE:` footer -> MAJOR.
 
 ### Footer
 
-- `Refs: #142`, `Fixes #487`
+- `Refs: #142`, `Fixes #487` — the number is the tracker's id for the work, taken from the item
+  itself, not invented. Without it the commit and the work item cannot be lined up later.
 - `BREAKING CHANGE:` in capitals.
 - A real human co-author is fine: `Co-authored-by: Ada Lovelace <ada@example.com>`
 
