@@ -5,11 +5,15 @@
     "are written without Turkish letters — write 'kullanici', never 'kullanici' with dotless i,",
     "otherwise the pattern never matches.",
     "Useful when commit messages are occasionally written in Turkish out of habit even though",
-    "the spec asks for English."
+    "the spec asks for English.",
+    "Direction matters: a forbidden reference has the USER as the speaker. The dative form",
+    "('kullaniciya soyledikleri' = what the app tells the user) is UI copy, not a reference,",
+    "and is excluded. 'duzeltme:' is not a narrative frame here: in Turkish the word means",
+    "both 'correction' and 'fix', and its technical sense is a legitimate body label."
   ],
   "hard": [
     {
-      "pattern": "kullanici[^.\\n]{0,80}\\b(sordu|dedi|soyledi|bildirdi|istedi|itiraz)",
+      "pattern": "kullanici(?!ya|lara)[^.\\n]{0,80}\\b(sordu|dedi|soyledi|bildirdi|istedi|itiraz)",
       "label": "conversation reference, TR (kullanici ... sordu/dedi/bildirdi)"
     },
     {
@@ -21,8 +25,8 @@
       "label": "attribution, TR ('urun karari')"
     },
     {
-      "pattern": "(?m)^\\s*(soru|duzeltme)\\s*:",
-      "label": "narrative frame, TR (SORU: / DUZELTME:)"
+      "pattern": "(?m)^\\s*soru\\s*:",
+      "label": "narrative frame, TR (SORU:)"
     },
     {
       "pattern": "\\bdemistim\\b",
