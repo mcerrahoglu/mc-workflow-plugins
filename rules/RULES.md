@@ -79,6 +79,17 @@ One commit = one logical change. If the message needs an "and", it should have b
 `git revert` then undoes one thing and `git bisect` narrows to one thing. Separate mixed changes
 with `git add -p`.
 
+### The gate
+
+A hook checks `git commit` before it runs. A structural breach or a forbidden wording is
+**denied**; something borderline — past the 72-character target, a capital after the prefix —
+**asks**. The reason names the rule id and the measured value, so it is fixable in one pass.
+
+**It skips what it cannot measure, and a skipped message is not an approved one.** Outside its
+view: a message typed in the editor, `commit.template`, and a substitution whose result is not
+knowable from the command line. It also cannot read a project's `CLAUDE.md`, so where that file
+overrides the English default, the language warning is a false positive to expect.
+
 Worked good and bad examples: `references/commit-examples.md`.
 
 ## 2. Commit structure
