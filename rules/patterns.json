@@ -5,6 +5,7 @@
     "letters, or they will never match (a silent false negative). Structural checks in the",
     "'structure' block are applied to the RAW message instead, because case matters there",
     "(lowercase type, capitalised BREAKING CHANGE).",
+    "Code spans and fenced blocks are blanked before matching: a message that documents a banned wording quotes it, and quoting is not asserting.",
     "Syntax: Python re. 'hard' -> deny, 'soft' -> ask.",
     "Additional language packs load from patterns.<lang>.json in this directory if present.",
     "If this file cannot be read or is malformed the gate fails closed: the decision becomes",
@@ -60,8 +61,18 @@
   ],
   "structure": {
     "allowed_types": [
-      "build", "chore", "ci", "docs", "feat", "fix",
-      "perf", "refactor", "revert", "security", "style", "test"
+      "build",
+      "chore",
+      "ci",
+      "docs",
+      "feat",
+      "fix",
+      "perf",
+      "refactor",
+      "revert",
+      "security",
+      "style",
+      "test"
     ],
     "type_suggestions": {
       "sec": "security",
@@ -74,14 +85,48 @@
     "subject_hard": 100,
     "body_hard": 100,
     "non_imperative_first_words": [
-      "added", "fixed", "updated", "removed", "changed", "refactored", "improved",
-      "created", "deleted", "renamed", "moved", "bumped", "implemented", "introduced",
-      "adds", "fixes", "updates", "removes", "changes", "refactors", "improves",
-      "creates", "deletes", "renames", "moves", "bumps", "implements", "introduces",
-      "adding", "fixing", "updating", "removing", "changing", "refactoring"
+      "added",
+      "fixed",
+      "updated",
+      "removed",
+      "changed",
+      "refactored",
+      "improved",
+      "created",
+      "deleted",
+      "renamed",
+      "moved",
+      "bumped",
+      "implemented",
+      "introduced",
+      "adds",
+      "fixes",
+      "updates",
+      "removes",
+      "changes",
+      "refactors",
+      "improves",
+      "creates",
+      "deletes",
+      "renames",
+      "moves",
+      "bumps",
+      "implements",
+      "introduces",
+      "adding",
+      "fixing",
+      "updating",
+      "removing",
+      "changing",
+      "refactoring"
     ],
     "generated_prefixes": [
-      "revert:", "revert \"", "fixup!", "squash!", "amend!", "merge "
+      "revert:",
+      "revert \"",
+      "fixup!",
+      "squash!",
+      "amend!",
+      "merge "
     ]
   }
 }

@@ -69,6 +69,7 @@ TRAILER_RE = re.compile(r"^[A-Z][A-Za-z-]+: ")
 BREAKING_RE = re.compile(r"(?i)^breaking[ -]change\s*:")
 EXPANSION_RE = re.compile(r"\$\(|`|\$\{|\$[A-Za-z_]|\\n|\\t")
 CD_RE = re.compile(r"^\s*cd\s+(\S+)")
+CODE_SPAN_RE = re.compile(r"```.*?```|`[^`\n]*`", re.DOTALL)
 
 GIT_GLOBAL_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace",
                          "--exec-path", "--config-env", "--super-prefix"}
@@ -146,6 +147,22 @@ def blank_quoted(text):
                 continue
             out[i] = " "
         i += 1
+    return "".join(out)
+
+
+def blank_code_spans(text):
+    """Blank fenced blocks and inline code spans, preserving length.
+
+    A message that documents a forbidden phrasing has to quote it, and quoting is not
+    asserting: `RULES.md` writes the banned wordings the same way. Scanning inside the
+    quotes denied the commits that explain the rules. This is an exemption, not a hole
+    plugged elsewhere -- the gate is not a security boundary and says so above.
+    """
+    out = list(text)
+    for m in CODE_SPAN_RE.finditer(text):
+        for pos in range(m.start(), m.end()):
+            if out[pos] != "\n":
+                out[pos] = " "
     return "".join(out)
 
 
@@ -589,7 +606,8 @@ def run(payload, patterns_path):
         message, source = extract_message(
             original, raw_tokens, parsed_ok and raw_ok, arg_index, seg_cwd)
 
-        haystack = fold(original if message is None else original + "\n" + message)
+        haystack = fold(blank_code_spans(
+            original if message is None else original + "\n" + message))
         hard_hits.extend(scan(haystack, hard_rules))
         soft_hits.extend(scan(haystack, soft_rules))
 
