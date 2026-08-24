@@ -12,7 +12,7 @@
       "name": "rules",
       "source": "./rules",
       "description": "Project-independent engineering rules: commit message spec (Conventional Commits, English), commit structure, proceeding and reporting, security, solution design, plan hardening, surgical changes, goals and verification. Rules load at session start; a PreToolUse gate rejects commit messages that break the spec.",
-      "version": "1.2.1",
+      "version": "1.3.0",
       "author": {
         "name": "mcerrahoglu"
       },

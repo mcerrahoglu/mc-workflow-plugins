@@ -522,27 +522,31 @@ def validate_structure(raw):
 
 
 def load_config(path):
-    """Return (hard, soft, structure, error). Language packs merge onto the base."""
+    """Return (hard, soft, markers, structure, error). Language packs merge onto the base."""
     try:
         data = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        return [], [], None, f"pattern file unreadable ({type(exc).__name__})"
+        return [], [], [], None, f"pattern file unreadable ({type(exc).__name__})"
     if not isinstance(data.get("hard"), list) or not isinstance(data.get("soft"), list):
-        return [], [], None, "pattern file has no 'hard'/'soft' lists"
+        return [], [], [], None, "pattern file has no 'hard'/'soft' lists"
 
     hard, err = _compile(data["hard"], "hard")
     if err:
-        return [], [], None, err
+        return [], [], [], None, err
     soft, err = _compile(data["soft"], "soft")
     if err:
-        return [], [], None, err
+        return [], [], [], None, err
+    markers, err = _compile(data.get("foreign_markers") or [], "foreign_markers")
+    if err:
+        return [], [], [], None, err
 
     for pack in sorted(pathlib.Path(path).parent.glob("patterns.*.json")):
         try:
             extra = json.loads(pathlib.Path(pack).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue                                  # a broken pack must not block work
-        for kind, target in (("hard", hard), ("soft", soft)):
+        for kind, target in (("hard", hard), ("soft", soft),
+                             ("foreign_markers", markers)):
             entries = extra.get(kind)
             if isinstance(entries, list):
                 compiled, packerr = _compile(entries, kind)
@@ -550,8 +554,8 @@ def load_config(path):
                     target.extend(compiled)
 
     if not hard and not soft:
-        return [], [], None, "pattern file is empty"
-    return hard, soft, validate_structure(data.get("structure")), None
+        return [], [], [], None, "pattern file is empty"
+    return hard, soft, markers, validate_structure(data.get("structure")), None
 
 
 def scan(text, rules):
@@ -594,7 +598,7 @@ def run(payload, patterns_path):
     if not commit_calls:
         return
 
-    hard_rules, soft_rules, structure, err = load_config(patterns_path)
+    hard_rules, soft_rules, markers, structure, err = load_config(patterns_path)
     if err:
         emit("ask", f"Commit message rules could not be checked: {err}. Expected file: "
                     f"{patterns_path}. Verify the message against RULES.md yourself.")
@@ -610,6 +614,12 @@ def run(payload, patterns_path):
             original if message is None else original + "\n" + message))
         hard_hits.extend(scan(haystack, hard_rules))
         soft_hits.extend(scan(haystack, soft_rules))
+
+        # Third channel: language markers read the RESOLVED MESSAGE only. The pattern
+        # channel above also sees the command string, where a path such as src/da/index.ts
+        # would score against a marker list.
+        if message is not None and markers and scan(fold(blank_code_spans(message)), markers):
+            soft_hits.append("non-English wording (rule 1: commit text is written in English)")
 
         if source.startswith("ERROR:"):
             notes.append(source[len("ERROR:"):])

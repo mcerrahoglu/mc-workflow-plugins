@@ -169,13 +169,20 @@ Additional languages: drop a `patterns.<lang>.json` beside it and it is loaded a
 `patterns.tr.json` ships as a working example, useful when messages are occasionally written in
 another language out of habit.
 
+A language pack may also carry `foreign_markers` — wordings that give its language away. Any
+single match makes the message "not in English" and yields `ask`, never `deny`. Markers read the
+resolved message only, not the command line, and each must be word-bounded and at least three
+letters: unbounded markers matched every English control message. Measured on 551 real commits,
+the Turkish set flags 39% of them and 11% of subject lines on their own — a one-line message
+often carries no marker, so this warns rather than enforces.
+
 ### Tests
 
 ```bash
 cd ~/mc-workflow-plugins/rules && python3 tests/run.py
 ```
 
-76 cases: false-positive protection, the message extractor, boundary values, case handling,
+98 cases: false-positive protection, the message extractor, boundary values, case handling,
 pattern health, fail-closed behaviour, and one full conforming message. The gate is exercised as
 a subprocess, so the tests run with the plugin disabled and need no repository.
 

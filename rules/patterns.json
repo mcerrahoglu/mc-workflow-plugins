@@ -9,7 +9,13 @@
     "Syntax: Python re. 'hard' -> deny, 'soft' -> ask.",
     "Additional language packs load from patterns.<lang>.json in this directory if present.",
     "If this file cannot be read or is malformed the gate fails closed: the decision becomes",
-    "'ask' with a reason, never a silent pass."
+    "'ask' with a reason, never a silent pass.",
+    "A 'foreign_markers' list may be added by a language pack: any single match makes the",
+    "message 'not in English' (rule 1) and yields ask. Markers read the RESOLVED MESSAGE only,",
+    "not the command string, because a path such as src/da/index.ts would score against them.",
+    "The security groups match a MECHANISM next to a TARGET, not either alone: a single keyword",
+    "fired on 15% of real commits, mostly on a mandatory body heading, while the pair fired on",
+    "one in 551. They stay generic and are not derived from any repository's own wording."
   ],
   "hard": [
     {
@@ -57,6 +63,18 @@
     {
       "pattern": "\\bi (fixed|added|measured|checked|looked|tried|found|thought|assumed|decided|noticed|wrote|removed|changed|ran|tested|realised|realized)\\b",
       "label": "first person singular"
+    },
+    {
+      "pattern": "(?:\\b(?:bypass|bypassed|bypassing|circumvent|circumvented|evade|evaded|forge|forged|atlat|atlatildi|atlanabilir)\\b[^\\n]{0,60}\\b(?:auth|authn|authz|authentication|authorisation|authorization|permission|permissions|acl|session|token|kimlik|yetki|dogrulama)\\b)|(?:\\b(?:auth|authn|authz|authentication|authorisation|authorization|permission|permissions|acl|session|token|kimlik|yetki|dogrulama)\\b[^\\n]{0,60}\\b(?:bypass|bypassed|bypassing|circumvent|circumvented|evade|evaded|forge|forged|atlat|atlatildi|atlanabilir)\\b)",
+      "label": "security disclosure: how a control can be got around"
+    },
+    {
+      "pattern": "(?:\\b(?:leak|leaked|leaks|leaking|expose|exposed|exposes|disclose|disclosed|readable|sizdi|sizinti|sizdirdi)\\b[^\\n]{0,60}\\b(?:secret|secrets|password|passwords|credential|credentials|api key|apikey|private key|token|tokens|parola|anahtar)\\b)|(?:\\b(?:secret|secrets|password|passwords|credential|credentials|api key|apikey|private key|token|tokens|parola|anahtar)\\b[^\\n]{0,60}\\b(?:leak|leaked|leaks|leaking|expose|exposed|exposes|disclose|disclosed|readable|sizdi|sizinti|sizdirdi)\\b)",
+      "label": "security disclosure: a secret described as reachable"
+    },
+    {
+      "pattern": "(?:\\b(?:unauthenticated|unauthorised|unauthorized|anonymous|yetkisiz|kimliksiz)\\b[^\\n]{0,60}\\b(?:read|reads|write|writes|access|delete|download|erisim|okuma|yazma|indirme)\\b)|(?:\\b(?:read|reads|write|writes|access|delete|download|erisim|okuma|yazma|indirme)\\b[^\\n]{0,60}\\b(?:unauthenticated|unauthorised|unauthorized|anonymous|yetkisiz|kimliksiz)\\b)",
+      "label": "security disclosure: access described as open"
     }
   ],
   "structure": {

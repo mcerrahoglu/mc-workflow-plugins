@@ -9,7 +9,13 @@
     "Direction matters: a forbidden reference has the USER as the speaker. The dative form",
     "('kullaniciya soyledikleri' = what the app tells the user) is UI copy, not a reference,",
     "and is excluded. 'duzeltme:' is not a narrative frame here: in Turkish the word means",
-    "both 'correction' and 'fix', and its technical sense is a legitimate body label."
+    "both 'correction' and 'fix', and its technical sense is a legitimate body label.",
+    "foreign_markers: each entry must be word-bounded and at least three letters. Measured:",
+    "unbounded markers matched all 20 English control messages (ve->have, de->code, da->update);",
+    "'once' (Turkish 'once' folds onto the English word) and the -ndi suffix (Hindi, Burundi)",
+    "were dropped for the same reason. What remains scores 0 of 20 English controls and flags",
+    "39% of 551 Turkish commits. Subject-only recall is 11%: a one-line message often carries",
+    "no marker, so this warns, it does not enforce."
   ],
   "hard": [
     {
@@ -41,6 +47,96 @@
     {
       "pattern": "\\b(yaptim|olctum|baktim|gordum|denedim|kovaladim|sandim|dusundum|ekledim|buldum|sectim|yazdim|anladim|karar verdim|fark ettim)\\b",
       "label": "first person singular, TR"
+    }
+  ],
+  "foreign_markers": [
+    {
+      "pattern": "\\w{3,}(?:ildi|uldu)\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\w{3,}(?:ecek|acak)\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\w{3,}(?:mesi|masi)\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\w{3,}(?:digi|digini|tigi)\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\w{3,}(?:iyor|uyor)\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\w{3,}(?:larin|lerin)\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bicin\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bolarak\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bdegil\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bgibi\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\byerine\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\buzerine\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bsonra\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bartik\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bzaten\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bsadece\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\byalniz\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bancak\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bkadar\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bayrica\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bnedeniyle\\b",
+      "label": "Turkish wording"
+    },
+    {
+      "pattern": "\\bsebebiyle\\b",
+      "label": "Turkish wording"
     }
   ]
 }

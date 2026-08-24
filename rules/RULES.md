@@ -151,7 +151,8 @@ Worked good and bad examples: `references/commit-examples.md`.
 
 - **Touch only what you must.** Do not "improve" adjacent code, comments or formatting.
 - Do not refactor what is not broken.
-- Match the existing style even where you would do it differently.
+- Match the existing style even where you would do it differently. This is about code:
+  the language and shape of a commit message follow rule 1, whatever the history holds.
 - If you notice unrelated dead code, **mention it — do not delete it.**
 - Remove the imports, variables and functions that **your own change** orphaned. Do not remove
   pre-existing dead code unless asked.
