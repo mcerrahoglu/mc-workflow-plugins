@@ -92,6 +92,7 @@ needed to match what the tracker shows on screen.
 | ► RIGHT PANEL FIELDS | ► SAĞ PANEL ALANLARI |
 | ► DESCRIPTION (paste into the editor) | ► AÇIKLAMA (editöre yapıştır) |
 | *select in the tracker* | *tracker'da seç* |
+| *from you* | *senden* |
 | **Estimate basis:** | **Tahminin dayanağı:** |
 | PARENT ISSUE | ÜST KONU |
 | LABELS | ETİKETLER |

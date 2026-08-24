@@ -15,6 +15,7 @@
 | TYPE | **<type>** |
 | STATUS | **<status>** |
 | ESTIMATE | **<hours>** |
+| SPENT | *from you* |
 | PARENT ISSUE | <only for a sub-task: the parent's id or title> |
 | PRIORITY | *select in the tracker* |
 | SPRINT | *select in the tracker* |
