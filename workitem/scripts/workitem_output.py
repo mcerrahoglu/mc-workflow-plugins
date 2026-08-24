@@ -8,10 +8,14 @@ earlier version tried and produced English headings while claiming otherwise. Th
 written by the skill, which is already speaking that language; here we keep only the two jobs
 that need code.
 
-  check    Compare a note's shape against the template it must match. The tracker's note pages
-           have a fixed field set, so a note that adds a row or invents a section has to be
-           reconciled by hand later. Shape is compared, not wording, so the check holds in any
-           language; a renamed heading is the one deviation it cannot see.
+  check    Compare a note against the template it must match. The tracker's note pages have a
+           fixed field set, so a note that adds a row or invents a section has to be reconciled
+           by hand later. Rows are compared by LABEL, canonicalised through references/labels.md,
+           so an invented field is named in the error and a note written from the wrong template
+           is caught. Sections are compared by LEVEL as a subsequence, so a section that does not
+           apply may be dropped while an invented one is not. When no row label resolves, the
+           language is one the map does not cover and the old count comparison is used instead,
+           saying so. Not seen either way: a renamed section, and section order.
 
   commits  Gather commits for a result note. --since is required: "the commits from this
            session" is undefined when work spans several repositories and days.
@@ -21,10 +25,12 @@ that need code.
 import datetime
 import json
 import pathlib
+import re
 import subprocess
 import sys
 
 TEMPLATES = pathlib.Path(__file__).resolve().parent.parent / "templates"
+LABELS = pathlib.Path(__file__).resolve().parent.parent / "references" / "labels.md"
 CONFIG_PATH = pathlib.Path.home() / ".workitem" / "config.json"
 
 
@@ -77,6 +83,64 @@ def heading_shape(text):
     return shape
 
 
+def label_map():
+    """Reverse map {target wording -> English label} from references/labels.md.
+
+    The map is a documentation table read as data, so a missing or duplicated entry would
+    silently change what the check measures. tests/labels.py guards both.
+    """
+    rev = {}
+    try:
+        text = LABELS.read_text(encoding="utf-8")
+    except OSError:
+        return rev
+    for line in text.split("\n"):
+        cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.strip().startswith("|") else []
+        if len(cells) != 2 or cells[0] in ("English", "") or set(cells[0]) <= {"-", ":"}:
+            continue
+        rev.setdefault(cells[1], cells[0])
+    return rev
+
+
+def first_table_labels(text):
+    """First-column values of the first table's data rows."""
+    labels, in_table, seen_header = [], False, False
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("|"):
+            in_table = True
+            cells = [c.strip() for c in stripped.strip("|").split("|")]
+            if all(set(c) <= {"-", ":"} and c for c in cells):
+                continue
+            if not seen_header:
+                seen_header = True
+                continue
+            labels.append(re.sub(r"[*`]", "", cells[0]).strip() if cells else "")
+        elif in_table and not stripped:
+            break
+    return labels
+
+
+def is_subsequence(small, big):
+    it = iter(big)
+    return all(any(x == y for y in it) for x in small)
+
+
+def free_text_sections(text):
+    """Section bodies with table rows removed, whitespace-normalised, blank lines dropped."""
+    sections, current = [], None
+    for line in text.split("\n"):
+        if line.lstrip().startswith("#"):
+            if current is not None:
+                sections.append(current)
+            current = []
+        elif current is not None and not line.strip().startswith("|"):
+            current.append(line)
+    if current is not None:
+        sections.append(current)
+    return [[ln.strip() for ln in s if ln.strip()] for s in sections]
+
+
 def compare_with_template(content, template_name):
     """Return a list of problems; empty means the note matches the template exactly."""
     template = TEMPLATES / f"{template_name}.md"
@@ -86,14 +150,52 @@ def compare_with_template(content, template_name):
     want = template.read_text(encoding="utf-8")
 
     problems = []
-    want_rows, got_rows = first_table_rows(want), first_table_rows(content)
-    if want_rows != got_rows:
-        problems.append(f"information table has {got_rows} rows, the template has "
-                        f"{want_rows}. The row set is fixed: add none, remove none.")
+    want_labels = first_table_labels(want)
+    got_labels = first_table_labels(content)
+    rev = label_map()
+
+    english = set(rev.values())
+
+    def canonical(raw):
+        # Recognised means "the map knows this label", NOT "the template wants it".
+        # Conflating the two made a note written from the wrong template fall through to
+        # the count comparison, which every five-row template passes.
+        if raw in english:
+            return raw
+        return rev.get(raw)
+
+    resolved = [canonical(r) for r in got_labels]
+    if got_labels and all(r is None for r in resolved):
+        # A language the map does not cover: fall back to counting rather than call every
+        # row invented. Said out loud, because a silent fallback measures nothing.
+        if len(got_labels) != len(want_labels):
+            problems.append(f"information table has {len(got_labels)} rows, the template has "
+                            f"{len(want_labels)}. The row set is fixed: add none, remove none. "
+                            f"(No row label resolved through references/labels.md, so only the "
+                            f"count was compared.)")
+    else:
+        unknown = [raw for raw, res in zip(got_labels, resolved)
+                   if res is None or res not in want_labels]
+        missing = [w for w in want_labels if w not in resolved]
+        if unknown:
+            problems.append("rows not in the template: " + ", ".join(unknown)
+                            + ". The row set is fixed: add none, remove none.")
+        if missing:
+            problems.append("rows missing: " + ", ".join(missing)
+                            + ". A field that cannot be known is left empty, not removed.")
+
     want_shape, got_shape = heading_shape(want), heading_shape(content)
-    if want_shape != got_shape:
+    if not is_subsequence(got_shape, want_shape):
         problems.append(f"heading shape is {got_shape}, the template is {want_shape}. "
-                        f"Sections are fixed: invent none, drop none, keep their level.")
+                        f"Invent no section and keep the levels; a section that does not apply "
+                        f"to this work may be dropped.")
+
+    # Untouched-template test. Comparing against the template beats looking for placeholder
+    # marks: three of the templates ship fixed prose of their own (a status legend, a date
+    # line), so "every section is only dots" would never fire for them.
+    if free_text_sections(content) == free_text_sections(want):
+        problems.append("the prose is still the template's, word for word: this is the blank "
+                        "form, not a note.")
     return problems
 
 
@@ -168,7 +270,7 @@ def main():
     c = sub.add_parser("check", help="compare a note against its template")
     c.add_argument("--file", required=True)
     c.add_argument("--template", required=True,
-                   help="task_note | test_note | incident_note | meeting_minutes")
+                   help="work_item | task_note | test_note | incident_note | meeting_minutes | annex")
     c.set_defaults(func=cmd_check)
 
     g = sub.add_parser("commits", help="collect commit material for a result note")

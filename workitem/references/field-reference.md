@@ -80,7 +80,9 @@ names and contacts, attendee names and units, minutes taker, time, location. Per
 deliberately absent from this reference.
 
 A section that is **not applicable** to the work (root cause on a new feature, dependencies when
-there are none) is deleted instead — "none" is not written.
+there are none) is deleted instead — "none" is not written. A section that merely has nothing
+to report yet is kept.
 
-Empty table cells stay empty and free-text sections carry a single `…`, so an unfinished note is
-visibly unfinished. The list of what to fill is written into `fields.md` next to the output.
+Blanks belong in table cells, which stay empty so the gap is visible on the page. Prose sections
+get written; one with genuinely nothing in it may carry a single `…`, but not all of them — a
+file whose prose is still the template word for word is the blank form, and `check` says so.

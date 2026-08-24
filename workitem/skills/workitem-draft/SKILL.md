@@ -70,13 +70,24 @@ took 4 h`. A bare figure reads as a measurement and an estimate is not one.
 The tracker attaches the estimate to the assignment, so the order is assign the person, then
 enter it. With more than one assignee, splitting it is the user's call.
 
-## 6. Where the file goes
+## 6. Check it
+
+```bash
+python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" check \
+  --file <path to the file> --template work_item
+```
+
+Same check the result note goes through, and for the same reason: the right panel has a fixed
+row set, so a field invented here has to be reconciled by hand in the tracker. Fix the file, not
+the template.
+
+## 7. Where the file goes
 
 `~/workitem-output/<number>-<slug>/` — one directory per work item, numbered the way the user
 numbers their work. The definition file is `gorev.md` in Turkish, `issue.md` in English. The
 result note joins it in the same directory later.
 
-## 7. Tell the user, in the output language
+## 8. Tell the user, in the output language
 
 The file path, which fields they select in the tracker (named as the tracker shows them — local
 wording in `references/labels.md`), the estimate and what it rests on, and that the title goes in

@@ -27,8 +27,10 @@ minutes, anything else -> task note.
 - **Add no rows** to the information table. The row set is exactly what the template lists.
 - **Add no sections.** Do not invent Symptom, Diagnosis, Verification, Root cause or anything
   else, however useful it would be. Findings go inside the sections that exist.
-- **Drop nothing and rename nothing.** A section that looks irrelevant still stays, because the
-  tracker's page has it. Where a value is not knowable, leave it blank.
+- **Rename nothing, and drop only what cannot apply.** A section that merely looks irrelevant
+  stays, because the tracker's page has it; one that genuinely cannot apply to this work — a
+  root cause for a new feature, dependencies where there are none — is dropped rather than
+  filled with "none". Where a value is not knowable, leave it blank.
 - Do not borrow a heading from another template: an incident note has no "Work done", a task note
   has no checklist table.
 - The template being small **constrains how much belongs in the note.** Where the analysis does
@@ -104,10 +106,19 @@ python3 "$CLAUDE_PLUGIN_ROOT/scripts/workitem_output.py" check \
   --file <path to the note> --template <task_note|test_note|incident_note|meeting_minutes>
 ```
 
-The check compares the note's shape against the template: the number of information-table rows
-and the sequence of heading levels. It exits non-zero and names what is off. **Fix the note; do
-not extend the template.** It compares shape rather than wording, so it works in any language; a
-renamed heading is the one deviation it cannot see, so that one is on you.
+It exits non-zero and names what is off. **Fix the note; do not extend the template.** What it
+measures:
+
+- **rows, by label.** Labels are canonicalised through `references/labels.md`, so an invented
+  field is named in the error and a note written from the wrong template is caught — the four
+  note templates all have five rows, so counting them proved nothing. Order is free.
+- **sections, by level, as a subsequence.** A section that cannot apply may be dropped; an
+  invented one is refused.
+- **the blank form.** Prose identical to the template word for word is the empty form, not a
+  note.
+
+Not seen: a renamed section, section order, and — where the output language is one
+`labels.md` does not cover — anything beyond the row count. Those are on you.
 
 ## 7. Hours
 
