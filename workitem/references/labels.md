@@ -7,6 +7,10 @@ stays consistent across notes instead of being re-invented each time.
 Add a column for another language and the templates keep working — this file is the only place
 that needs touching.
 
+> This map is read by `scripts/workitem_output.py` when it checks a note's structure, so it is
+> data as well as documentation. Every label a template uses must appear here, and no Turkish
+> string may map to two English labels — `tests/labels.py` fails if either breaks.
+
 ## Section headings
 
 | English | Turkish |
@@ -71,8 +75,8 @@ that needs touching.
 
 ## Tracker fields chosen by the user
 
-These are not generated, but the checklist in `fields.md` names them, so the local wording is
-needed to match what the tracker shows on screen.
+These are not generated. The wording is needed because a work item file marks them for the
+user to choose, and it has to name them the way the tracker shows them on screen.
 
 | English | Turkish |
 |---|---|
@@ -80,7 +84,6 @@ needed to match what the tracker shows on screen.
 | STATUS | DURUM |
 | SPRINT | SPRİNT |
 | WORK PACKAGE | İŞ PAKETİ |
-| DUE DATE | TERMİN |
 | ASSIGNEE | ATANANLAR |
 
 ## Work item file structure
@@ -94,6 +97,7 @@ needed to match what the tracker shows on screen.
 | *select in the tracker* | *tracker'da seç* |
 | *from you* | *senden* |
 | **Estimate basis:** | **Tahminin dayanağı:** |
+| TYPE | TİP |
 | PARENT ISSUE | ÜST KONU |
 | LABELS | ETİKETLER |
 | SUB-TASK | ALT GÖREV |
