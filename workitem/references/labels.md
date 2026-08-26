@@ -106,6 +106,15 @@ user to choose, and it has to name them the way the tracker shows them on screen
 | ATTACHMENTS | EKLER |
 | SPENT | HARCANAN |
 
+## Date format
+
+A date is written the way the output language writes it, not the way a database stores it.
+The `--since` argument of `workitem_output.py commits` is a git input and stays ISO.
+
+| English | Turkish |
+|---|---|
+| DD.MM.YYYY | GG.AA.YYYY |
+
 ## Values
 
 | English | Turkish |

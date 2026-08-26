@@ -21,6 +21,10 @@ If `CLAUDE_PLUGIN_ROOT` is empty the fallback above finds the installed copy; th
 carries a version number, so never hardcode one. If neither resolves, ask the user for the path
 rather than guessing.
 
+Dates are written in the output language's own convention — the format is in
+`references/labels.md` (`GG.AA.YYYY` for Turkish, so `26.08.2026`). A range uses the same
+format on both sides. The only exception is a git argument, which stays ISO.
+
 Everything the user reads is written in that language: the file, its headings, and what you say
 in chat. Translate the structural wording with `references/labels.md` — it holds the section
 titles, the field names and the fixed phrases. Commit messages are unaffected; those are English

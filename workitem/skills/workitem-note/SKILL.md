@@ -18,6 +18,11 @@ SCRIPT="${CLAUDE_PLUGIN_ROOT:-$(ls -d ~/.claude/plugins/cache/*/workitem/*/ 2>/d
 python3 "$SCRIPT" language            # prints the stored language, or says there is none
 ```
 
+Dates are written in the output language's own convention — the format is in
+`references/labels.md` (`GG.AA.YYYY` for Turkish, so `26.08.2026`). A range uses the same
+format on both sides. The only exception is the `--since` argument below, which is a git
+input and stays ISO.
+
 Ask only if nothing is stored, then store the answer with `language --set <code>`. If
 `CLAUDE_PLUGIN_ROOT` is empty the fallback finds the installed copy; the cache path carries a
 version number, so never hardcode one. Structural wording is translated with
