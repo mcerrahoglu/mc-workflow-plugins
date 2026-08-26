@@ -7,7 +7,7 @@ tracker.
 | Plugin | Version | What it does |
 |---|---|---|
 | `rules` | 1.3.0 | Loads engineering rules into every session and gates commit messages |
-| `workitem` | 1.7.0 | Generates work item definitions and result notes for any issue tracker |
+| `workitem` | 1.8.0 | Generates work item definitions and result notes for any issue tracker |
 
 They are independent: install either one on its own. `workitem` does not need `rules`.
 

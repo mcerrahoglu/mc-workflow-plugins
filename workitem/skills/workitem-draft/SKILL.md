@@ -74,6 +74,34 @@ Rules for the description:
 - Delete a section that genuinely does not apply; do not write "none". Keep a section whose value
   is simply unknown and leave it blank.
 
+### The out-of-scope pass — do this before the file is final
+
+An out-of-scope list written and left alone is where the next incident comes from. Once the list
+exists, take each item and answer four questions:
+
+1. Does a completion criterion depend on it? Then it was never out of scope.
+2. Would deferring it leave something **wrong now** — a false number, an open permission, a state
+   the system reports incorrectly in the meantime?
+3. Does doing it later cost materially more? The same code touched twice, a migration re-run, data
+   accumulating in the wrong shape until then.
+4. Is it a silent risk — nothing fails, nothing alerts, and the damage is only visible later?
+
+**Yes to 2, 3 or 4 moves it into Scope**, with one line in the item saying why it moved. The
+estimate is re-derived afterwards; pulling work in and leaving the estimate alone makes the item
+lie.
+
+**A claim has to be grounded.** "This will break later" counts only with the file, the measurement
+or the code path that shows it. Where it cannot be grounded, say so and treat it as a watch item
+rather than a certainty — a guess pulled into scope costs as much as a real risk left out.
+
+**Then put the remainder to the user and wait.** Number them, and for each give: what it is, what
+happens if it waits, and roughly what it costs to do now. Ask which ones to pull into this item.
+This changes scope and estimate, so it is asked before the file is finished, not reported after.
+
+**Whatever stays out keeps its reason.** Each remaining entry carries a short clause — why it is
+safe to defer, or which risk is being accepted. A bare line is a decision nobody made; a line with
+its risk is a decision on record, and it is where the next work item comes from.
+
 ## 5. Estimate
 
 A **range with its basis**, never a bare number. The mechanics, the worked example and the
