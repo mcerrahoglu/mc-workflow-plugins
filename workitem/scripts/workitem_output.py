@@ -49,38 +49,55 @@ def write_language(value):
 
 
 # ------------------------------------------------------------------- structure checking
-def first_table_rows(text):
-    """Data rows of the first table: a note template's information table."""
-    rows, in_table, seen_header = 0, False, False
-    for line in text.split("\n"):
-        stripped = line.strip()
-        if stripped.startswith("|"):
-            in_table = True
-            cells = [c.strip() for c in stripped.strip("|").split("|")]
-            if all(set(c) <= {"-", ":"} and c for c in cells):
-                continue
-            if not seen_header:
-                seen_header = True
-                continue
-            rows += 1
-        elif in_table and not stripped:
-            break
-    return rows
+TAG_RE = re.compile(r"<[^>]+>")
+TABLE_RE = re.compile(r"<table\b.*?</table>", re.S | re.I)
+TBODY_RE = re.compile(r"<tbody\b.*?</tbody>", re.S | re.I)
+ROW_RE = re.compile(r"<tr\b.*?</tr>", re.S | re.I)
+CELL_RE = re.compile(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", re.S | re.I)
+HEADING_RE = re.compile(r"<h([1-6])\b", re.I)
+HTML_RE = re.compile(r"<(?:h[1-6]|table|ul|ol|p)\b", re.I)
+ENTITIES = (("&lt;", "<"), ("&gt;", ">"), ("&quot;", '"'), ("&#39;", "'"), ("&amp;", "&"))
+
+
+def looks_like_html(text):
+    """Output has been HTML since 2.0.0; a markdown file must fail loudly, not silently."""
+    return bool(HTML_RE.search(text))
+
+
+def strip_tags(fragment):
+    text = TAG_RE.sub(" ", fragment)
+    for entity, char in ENTITIES:                 # &amp; last, so &amp;lt; does not become <
+        text = text.replace(entity, char)
+    return " ".join(text.split())
+
+
+def first_table_labels(text):
+    """First-column values of the first table's data rows: the information table's labels."""
+    table = TABLE_RE.search(text)
+    if not table:
+        return []
+    body = TBODY_RE.search(table.group(0))
+    scope, in_tbody = (body.group(0), True) if body else (table.group(0), False)
+    labels = []
+    for row in ROW_RE.findall(scope):
+        cells = CELL_RE.findall(row)
+        if not cells:
+            continue
+        if not in_tbody and "<th" in row.lower():
+            continue                              # a header row, where no tbody separates it
+        labels.append(strip_tags(cells[0]))
+    return labels
 
 
 def heading_shape(text):
     """Heading levels in order. Shape, not wording, so it is language independent."""
-    shape, in_fence = [], False
-    for line in text.split("\n"):
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        stripped = line.lstrip()
-        if stripped.startswith("#"):
-            shape.append(len(stripped) - len(stripped.lstrip("#")))
-    return shape
+    return [int(level) for level in HEADING_RE.findall(text)]
+
+
+def free_text_sections(text):
+    """Prose per section, tables removed, whitespace normalised."""
+    without_tables = TABLE_RE.sub(" ", text)
+    return [strip_tags(part) for part in re.split(r"<h[1-6]\b[^>]*>", without_tables, flags=re.I)]
 
 
 def label_map():
@@ -95,30 +112,12 @@ def label_map():
     except OSError:
         return rev
     for line in text.split("\n"):
-        cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.strip().startswith("|") else []
+        cells = [c.strip() for c in line.strip().strip("|").split("|")] \
+            if line.strip().startswith("|") else []
         if len(cells) != 2 or cells[0] in ("English", "") or set(cells[0]) <= {"-", ":"}:
             continue
         rev.setdefault(cells[1], cells[0])
     return rev
-
-
-def first_table_labels(text):
-    """First-column values of the first table's data rows."""
-    labels, in_table, seen_header = [], False, False
-    for line in text.split("\n"):
-        stripped = line.strip()
-        if stripped.startswith("|"):
-            in_table = True
-            cells = [c.strip() for c in stripped.strip("|").split("|")]
-            if all(set(c) <= {"-", ":"} and c for c in cells):
-                continue
-            if not seen_header:
-                seen_header = True
-                continue
-            labels.append(re.sub(r"[*`]", "", cells[0]).strip() if cells else "")
-        elif in_table and not stripped:
-            break
-    return labels
 
 
 def is_subsequence(small, big):
@@ -126,24 +125,9 @@ def is_subsequence(small, big):
     return all(any(x == y for y in it) for x in small)
 
 
-def free_text_sections(text):
-    """Section bodies with table rows removed, whitespace-normalised, blank lines dropped."""
-    sections, current = [], None
-    for line in text.split("\n"):
-        if line.lstrip().startswith("#"):
-            if current is not None:
-                sections.append(current)
-            current = []
-        elif current is not None and not line.strip().startswith("|"):
-            current.append(line)
-    if current is not None:
-        sections.append(current)
-    return [[ln.strip() for ln in s if ln.strip()] for s in sections]
-
-
 def compare_with_template(content, template_name):
     """Return a list of problems; empty means the note matches the template exactly."""
-    template = TEMPLATES / f"{template_name}.md"
+    template = TEMPLATES / f"{template_name}.html"
     if not template.is_file():
         available = ", ".join(sorted(t.stem for t in TEMPLATES.glob("*.md")))
         return [f"unknown template `{template_name}`; available: {available}"]
@@ -204,7 +188,18 @@ def cmd_check(args):
     path = pathlib.Path(args.file)
     if not path.is_file():
         sys.exit(f"error: file not found: {path}")
-    problems = compare_with_template(path.read_text(encoding="utf-8"), args.template)
+    content = path.read_text(encoding="utf-8")
+    if not looks_like_html(content):
+        sys.exit(f"error: {path.name} is not HTML. Work item files and notes have been HTML since "
+                 f"2.0.0, because a native checklist only survives a paste that carries text/html. "
+                 f"A markdown file cannot be compared against an HTML template.")
+    if args.template == "annex":
+        # An annex has no fixed section list by design: what it holds depends on the work.
+        # Comparing its shape against the starting point would fail every real annex.
+        print(f"OK: {path.name} is HTML. An annex has no fixed shape, so only the format "
+              f"was checked.")
+        return 0
+    problems = compare_with_template(content, args.template)
     if problems:
         print(f"MISMATCH against `{args.template}`:", file=sys.stderr)
         for problem in problems:

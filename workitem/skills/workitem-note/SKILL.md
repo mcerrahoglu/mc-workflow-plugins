@@ -5,8 +5,34 @@ description: Writes the result note for a finished work item, matching the track
 
 # Result note
 
-The step **after** the work. Produces **one file** per item — `not.md` in Turkish, `note.md` in
-English — in the same directory as its definition, plus an annex when one is needed (section 5).
+The step **after** the work. Produces **one file** per item — `not.html` in Turkish,
+`note.html` in English — in the same directory as its definition, plus an annex when one is
+needed (section 5).
+
+## 0. How the file reaches the tracker
+
+The file is **HTML**, and the route matters: download it, open it in a **browser**, select, copy,
+paste into the tracker. Copying from the file itself puts `text/plain` on the clipboard and the
+editor falls back to its own markdown rules, which do not cover a checklist — so a criterion
+arrives as a bullet with a literal `[x]` beside it. Copying from a rendered page puts `text/html`
+on the clipboard and every element arrives as itself: real headings, real tables, real
+checkboxes. Measured both ways; `references/labels.md` records what survives.
+
+Write plain HTML and only these elements: `h1`-`h3`, `p`, `strong`, `em`, `s`, `code`, `hr`,
+`blockquote`, `table`/`thead`/`tbody`/`tr`/`th`/`td`, `ul`, `ol`, `li`, and the checklist form
+below. No `<!doctype>`, no `<html>`, no `<body>`, no `<style>`, no classes — a fragment renders
+in a browser and keeps the copy clean. Start the file with `<meta charset="utf-8">` so the
+browser does not guess the encoding and mangle the output language's letters; it is not content,
+so it is not copied.
+
+A checklist item is written exactly like this, and `data-checked` is the whole state:
+
+```html
+<ul data-type="taskList">
+  <li data-type="taskItem" data-checked="true"><p>met criterion</p></li>
+  <li data-type="taskItem" data-checked="false"><p>not met yet</p></li>
+</ul>
+```
 
 ## 0. Output language
 
@@ -32,18 +58,18 @@ version number, so never hardcode one. Structural wording is translated with
 
 | Work | Template |
 |---|---|
-| Code, feature, improvement, bug fix | `templates/task_note.md` |
-| Test design or a verification run | `templates/test_note.md` |
-| Production outage or failure | `templates/incident_note.md` |
-| Meeting | `templates/meeting_minutes.md` |
+| Code, feature, improvement, bug fix | `templates/task_note.html` |
+| Test design or a verification run | `templates/test_note.html` |
+| Production outage or failure | `templates/incident_note.html` |
+| Meeting | `templates/meeting_minutes.html` |
 
 If unsure, follow the item's type: Test -> test note, Incident -> incident note, Meeting ->
 minutes, anything else -> task note. None of them fitting is what the tracker's blank page is
 for.
 
 Paste the **whole note into a blank page** rather than picking the tracker's own template and
-filling cells one at a time: a Markdown pipe table becomes a real table on paste, so the result
-looks native and it is one step.
+filling cells one at a time: pasted from a browser the whole structure arrives native, so it is
+one step and nothing is retyped.
 
 ## 2. The structure is fixed
 
@@ -98,9 +124,9 @@ cannot know what to attach; naming a thing without producing it is the same fail
 field without filling it.
 
 So where content does not fit the note, write an annex file next to the other two, following
-`templates/annex.md`:
+`templates/annex.html`:
 
-- named `ek-<n>-<slug>.md` in Turkish, `annex-<n>-<slug>.md` in English
+- named `ek-<n>-<slug>.html` in Turkish, `annex-<n>-<slug>.html` in English
 - titled `EK-<n> — <name>`, with a line under the title saying which work item it belongs to,
   where the material came from, and whether anything was shortened
 - free in shape: an annex has no fixed structure, because what it holds depends on the work.
@@ -119,8 +145,13 @@ Give each table a line saying what was measured and how, so a number can be inte
 later.
 
 The note must then **name the annex** in its own text, so the two are linked: "Detail: EK-1 —
-<name>". Tell the user the annex can go on the page as its own titled section, or be uploaded to
-the attachments area — either way the title carries the link.
+<name>". Say where each thing goes rather than offering a choice — deciding that is the work:
+
+- **the annex itself** goes on its own page in the tracker (a second note, notebook or
+  whatever the tool calls one), pasted the same way. A measurement annex runs to dozens of
+  table rows and would bury the note it belongs to.
+- **images and other binaries** go to the attachments area as files. They cannot be pasted.
+- a short annex, a handful of rows, can stay in the note as its own titled section.
 
 If something genuinely cannot be produced here — a screenshot, a file only on the user's
 machine — then say exactly what to capture and where it goes. Never "attach the details".
@@ -182,7 +213,7 @@ sentence, an unrecorded hour costs the report.
 For each unplanned item, a pair in a directory named after the parent, for example
 `<parent-number>.1-<slug>/`:
 
-- a definition file following `templates/work_item.md`, with the parent named in the parent-issue
+- a definition file following `templates/work_item.html`, with the parent named in the parent-issue
   row, the status it actually has, and the extra hours as its estimate and spent value
 - a result note for its own type, checked like any other note
 

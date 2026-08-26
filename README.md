@@ -7,7 +7,7 @@ tracker.
 | Plugin | Version | What it does |
 |---|---|---|
 | `rules` | 1.3.0 | Loads engineering rules into every session and gates commit messages |
-| `workitem` | 1.8.0 | Generates work item definitions and result notes for any issue tracker |
+| `workitem` | 2.0.0 | Generates work item definitions and result notes for any issue tracker |
 
 They are independent: install either one on its own. `workitem` does not need `rules`.
 
@@ -205,12 +205,31 @@ no API, no credentials, no requests. Two files per work item, entered by hand.
 It does write locally: the generated files go to `~/workitem-output/<number>-<slug>/` and the
 chosen output language is remembered in `~/.workitem/config.json`. Nothing leaves the machine.
 
+### The output is HTML, and the route matters
+
+Files are HTML and reach the tracker one way: **download, open in a browser, select, copy,
+paste.** Copying from the file gives the editor `text/plain` and it falls back to its own
+markdown rules; copying from a rendered page gives it `text/html` and every element arrives as
+itself.
+
+That distinction is not cosmetic. Markdown converts headings, bold, lists and pipe tables, but
+**not a checklist**: six syntaxes were tried (`- [x]`, `* [x]`, bare `[x]`, `- [X]`, `+ [x]`,
+`1. [x]`) and every one arrived as a bullet with a literal `[x]` next to it. Completion criteria
+are the part of a note meant to be scanned, so the format follows them. Pasted as HTML they are
+real checkboxes, already ticked, struck through by the editor.
+
+Templates use a deliberately small element set — `h1`-`h3`, `p`, `strong`, `em`, `s`, `code`,
+`hr`, `blockquote`, tables, lists, and `ul[data-type=taskList]` for a checklist — with no
+doctype, no `<style>` and no classes, so a fragment renders in a browser and copies clean.
+`references/labels.md` records what was measured to survive; another tracker may need different
+markup and that is where it changes.
+
 ### Two commands
 
 | Command | When | Produces |
 |---|---|---|
-| `/workitem-draft` | Before starting | The work item definition: title, right-panel values, description |
-| `/workitem-note` | When finished | The result note, plus sub-tasks for unplanned work |
+| `/workitem-draft` | Before starting | `gorev.html` — title, right-panel values, description |
+| `/workitem-note` | When finished | `not.html`, plus an annex and sub-tasks for unplanned work |
 
 Only **type, status and estimate** are decided. Priority, sprint, work package, due date, assignee
 and labels depend on the project and the team, so they are marked as chosen in the tracker. A value
@@ -225,7 +244,7 @@ otherwise. So the skill writes the files, following `templates/` for structure a
 
 ```bash
 # refuse a note whose shape does not match its template
-workitem_output.py check --file <note> --template <task_note|test_note|incident_note|meeting_minutes>
+workitem_output.py check --file <note> --template <work_item|task_note|test_note|incident_note|meeting_minutes>
 
 # collect commit material for a result note (--since is required)
 workitem_output.py commits --since 2026-08-17 --repo ~/project-a --repo ~/project-b
@@ -238,10 +257,18 @@ workitem_output.py language --set tr
 
 A tracker's note page has a fixed field set. Two notes written in real use drifted from it: one
 added a row, another mixed two templates and invented four sections of its own. An instruction to
-"fill the template" had already failed twice, so the check is mechanical: it compares the number of
-information-table rows and the sequence of heading levels against the template and exits non-zero
-naming what is off. It compares shape rather than wording, so it holds in any output language; a
-renamed heading is the one deviation it cannot see.
+"fill the template" had already failed twice, so the check is mechanical.
+
+It compares **rows by label**, canonicalised through `references/labels.md`, so the error names
+the invented or missing field and a note written from the wrong template is caught — counting
+rows could not do that, since all four note templates have five rows and the same heading
+levels. **Sections are a subsequence** of the template's levels, which is what lets a section
+that cannot apply be dropped while an invented one is refused. And prose identical to the
+template word for word is the blank form, not a note.
+
+Not seen: a renamed section, section order, and — where the output language is one `labels.md`
+does not cover — anything beyond the row count, which it says out loud. An annex is exempt: it
+has no fixed section list by design, so only its format is checked.
 
 ### Sub-tasks are for unplanned work
 
@@ -291,16 +318,18 @@ rules/
   skills/rules/SKILL.md           /rules
   references/commit-examples.md   worked good and bad examples
   templates/gitmessage.txt        optional git commit template
-  tests/                          76 cases, harness, baseline differ
+  tests/                          98 cases, harness, baseline differ
 
 workitem/
   skills/workitem-draft/SKILL.md  /workitem-draft  (before the work)
   skills/workitem-note/SKILL.md   /workitem-note   (after the work)
   references/field-reference.md   types, statuses, estimate mechanics
-  references/labels.md            English -> other language wording
+  references/labels.md            wording, paste format, date format
   references/ears.md              requirement patterns
-  templates/work_item.md          the definition file's structure
-  templates/*_note.md, meeting_minutes.md   the four note structures
+  templates/work_item.html        the definition file's structure
+  templates/*_note.html, meeting_minutes.html   the four note structures
+  templates/annex.html            starting point for a measurement annex
+  tests/labels.py                 guards the label map the checker reads
   scripts/workitem_output.py      structure checker + commit collector
 ```
 

@@ -5,7 +5,37 @@ description: Writes the work item file to open in an issue tracker before the wo
 
 # Work item definition
 
-The step **before** the work. Produces **one file** and nothing else.
+The step **before** the work. Produces **one file** and nothing else: `gorev.html` in Turkish,
+`issue.html` in English.
+
+## 0. How the file reaches the tracker
+
+The file is **HTML**, and the route matters: download it, open it in a **browser**, select, copy,
+paste into the tracker. Copying from the file itself puts `text/plain` on the clipboard and the
+editor falls back to its own markdown rules, which do not cover a checklist — so a criterion
+arrives as a bullet with a literal `[x]` beside it. Copying from a rendered page puts `text/html`
+on the clipboard and every element arrives as itself: real headings, real tables, real
+checkboxes. Measured both ways; `references/labels.md` records what survives.
+
+Write plain HTML and only these elements: `h1`-`h3`, `p`, `strong`, `em`, `s`, `code`, `hr`,
+`blockquote`, `table`/`thead`/`tbody`/`tr`/`th`/`td`, `ul`, `ol`, `li`, and the checklist form
+below. No `<!doctype>`, no `<html>`, no `<body>`, no `<style>`, no classes — a fragment renders
+in a browser and keeps the copy clean. Start the file with `<meta charset="utf-8">` so the
+browser does not guess the encoding and mangle the output language's letters; it is not content,
+so it is not copied.
+
+A checklist item is written exactly like this, and `data-checked` is the whole state:
+
+```html
+<ul data-type="taskList">
+  <li data-type="taskItem" data-checked="true"><p>met criterion</p></li>
+  <li data-type="taskItem" data-checked="false"><p>not met yet</p></li>
+</ul>
+```
+
+This file feeds **three** places, so it is not one paste: the title goes in the title field, the
+right panel values are chosen in the tracker, and only the description block is pasted. The
+template carries a rule and a line saying where to start selecting — keep it.
 
 ## 1. Output language
 
@@ -54,7 +84,7 @@ tracker. Never invent a value that is not on a list.
 
 ## 4. Write the file
 
-Follow `templates/work_item.md`. Its shape, translated into the output language:
+Follow `templates/work_item.html`. Its shape, translated into the output language:
 
 - a heading with the number and a short summary
 - a note saying this is the content for the tracker's new-issue screen
@@ -120,8 +150,9 @@ the template.
 ## 7. Where the file goes
 
 `~/workitem-output/<number>-<slug>/` — one directory per work item. The definition file is
-`gorev.md` in Turkish, `issue.md` in English. The result note joins it in the same directory
-later, as `not.md` or `note.md`, and any annex as `ek-<n>-<slug>.md` or `annex-<n>-<slug>.md`.
+`gorev.html` in Turkish, `issue.html` in English. The result note joins it in the same directory
+later, as `not.html` or `note.html`, and any annex as `ek-<n>-<slug>.html` or
+`annex-<n>-<slug>.html`.
 
 **The number comes from the user** — it has to match what the tracker gave the item. Ask for it.
 If they do not have it yet, offer one past the highest already in `~/workitem-output/` and say it

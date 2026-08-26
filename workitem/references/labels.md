@@ -106,6 +106,32 @@ user to choose, and it has to name them the way the tracker shows them on screen
 | ATTACHMENTS | EKLER |
 | SPENT | HARCANAN |
 
+## Paste format
+
+Measured in one tracker (a ProseMirror/TipTap-family editor); re-measure in yours before trusting
+it. Copied from a **rendered page** in a browser, the clipboard carries `text/html` and these all
+arrive as themselves: `h1`-`h3`, `p`, `strong`, `em`, `s`, `code`, `hr`, `blockquote`, `table` with
+`thead`, `ul`, `ol`, `li`. Copied from the **file**, the clipboard carries only `text/plain` and
+the editor applies its own markdown rules instead — which convert headings, bold, lists and pipe
+tables but **not** a checklist.
+
+So a checklist is the one thing that decides the format. Six markdown syntaxes were tried
+(`- [x]`, `* [x]`, bare `[x]`, `- [X]`, `+ [x]`, `1. [x]`) and every one arrived as a bullet with
+a literal `[x]` next to it. What works, pasted as HTML:
+
+```html
+<ul data-type="taskList">
+  <li data-type="taskItem" data-checked="true"><p>met</p></li>
+  <li data-type="taskItem" data-checked="false"><p>not met</p></li>
+</ul>
+```
+
+`data-checked` carries the state; a checked item is struck through by the editor, so no `<s>` is
+added. A variant with `<label><input type="checkbox">` inside the item also works and is not
+needed. Without the `data-type` attributes the list degrades to plain bullets.
+
+Another tracker may want different markup. This table is where that changes.
+
 ## Date format
 
 A date is written the way the output language writes it, not the way a database stores it.
