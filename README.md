@@ -285,14 +285,24 @@ come from the user alone: commit timestamps show elapsed time, which is not time
 
 ### Templates and the format probe
 
-`templates/` holds `work_item` plus four note templates as Markdown with GFM pipe tables. Paste a
-note into a **blank page** rather than picking the tracker's own template and filling cells: on
-paste a pipe table becomes a real table, so one paste is enough and the result looks native.
+`templates/` holds `work_item`, four note templates and an annex starting point, all HTML. Paste
+into a **blank page** rather than picking the tracker's own template and filling cells: the whole
+structure arrives at once and nothing is retyped.
 
-**Verify the format in your own tracker once.** Paste a small probe — a heading, bold text, a list,
-a two-column pipe table, an emoji — save, reload, and see what survived. Editors differ; some
-accept Markdown and reject HTML. If yours needs something else only the templates change, because
-the script does not generate content.
+**Probe your own tracker once**, because editors differ and the answer decides the format. Write a
+small HTML file — a heading, bold, a two-column table, and a checklist as
+`<ul data-type="taskList">` with `<li data-type="taskItem" data-checked="true">` — open it in a
+browser, select all, copy, paste, save, reload, and see what survived. Two things are worth
+knowing before you start:
+
+- **Where you copy from decides what arrives.** Copying the file gives the editor `text/plain`;
+  copying a rendered browser page gives it `text/html`. In the tracker probed here the first route
+  loses checklists entirely, and the second keeps everything.
+- **A markdown task list is the thing most likely to fail.** Six syntaxes were tried and all six
+  arrived as a bullet with a literal `[x]`.
+
+If your editor wants different markup, `references/labels.md` is where that is recorded and only
+the templates change — the script generates no content.
 
 ### Fields left blank on purpose
 
@@ -354,7 +364,8 @@ workitem/
 
 ## Not verified yet
 
-- Whether a given tracker's editor accepts Markdown — run the probe described above.
+- Which markup a tracker other than the one probed here accepts. The checklist form was
+  measured in a ProseMirror/TipTap-family editor; run the probe above before trusting it.
 - Whether the type list matches trackers other than the one it was drawn from. Treat
   `field-reference.md` as a starting point and edit it.
 
