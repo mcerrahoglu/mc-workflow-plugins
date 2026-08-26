@@ -19,8 +19,9 @@ checkboxes. Measured both ways; `references/labels.md` records what survives.
 
 Write plain HTML and only these elements: `h1`-`h3`, `p`, `strong`, `em`, `s`, `code`, `hr`,
 `blockquote`, `table`/`thead`/`tbody`/`tr`/`th`/`td`, `ul`, `ol`, `li`, and the checklist form
-below. No `<!doctype>`, no `<html>`, no `<body>`, no `<style>`, no classes — a fragment renders
-in a browser and keeps the copy clean. Start the file with `<meta charset="utf-8">` so the
+below. No `<!doctype>`, no `<html>`, no `<body>`, no `<style>`, no classes, and no attributes
+beyond `data-type` and `data-checked` — a fragment renders in a browser and keeps the copy
+clean. Start the file with `<meta charset="utf-8">` so the
 browser does not guess the encoding and mangle the output language's letters; it is not content,
 so it is not copied.
 

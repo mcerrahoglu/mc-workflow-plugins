@@ -23,6 +23,7 @@ that need code.
   language Remember the output language, so the skill asks once rather than every time.
 """
 import datetime
+import html
 import json
 import pathlib
 import re
@@ -49,26 +50,31 @@ def write_language(value):
 
 
 # ------------------------------------------------------------------- structure checking
-TAG_RE = re.compile(r"<[^>]+>")
+TAG_RE = re.compile(r"</?[a-zA-Z][^>]*>")   # not r"<[^>]+>": that ate "alarm at < 1.500 ms"
 TABLE_RE = re.compile(r"<table\b.*?</table>", re.S | re.I)
 TBODY_RE = re.compile(r"<tbody\b.*?</tbody>", re.S | re.I)
 ROW_RE = re.compile(r"<tr\b.*?</tr>", re.S | re.I)
-CELL_RE = re.compile(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", re.S | re.I)
+CELL_RE = re.compile(r"<(t[dh])\b[^>]*>(.*?)</\1>", re.S | re.I)
+TASKLIST_RE = re.compile(r'data-type\s*=\s*"taskList"', re.I)
+TASKITEM_RE = re.compile(r'data-type\s*=\s*"taskItem"', re.I)
 HEADING_RE = re.compile(r"<h([1-6])\b", re.I)
-HTML_RE = re.compile(r"<(?:h[1-6]|table|ul|ol|p)\b", re.I)
-ENTITIES = (("&lt;", "<"), ("&gt;", ">"), ("&quot;", '"'), ("&#39;", "'"), ("&amp;", "&"))
 
 
 def looks_like_html(text):
-    """Output has been HTML since 2.0.0; a markdown file must fail loudly, not silently."""
-    return bool(HTML_RE.search(text))
+    """Output has been HTML since 2.0.0; a markdown file must fail loudly, not silently.
+
+    The test is the FIRST meaningful line, not "a tag appears somewhere": documentation that
+    quotes markup in a code block would otherwise pass as HTML. Generated files open with
+    `<meta charset="utf-8">`, which is why that line is required rather than merely suggested.
+    """
+    for line in text.split("\n"):
+        if line.strip():
+            return line.lstrip().startswith("<")
+    return False
 
 
 def strip_tags(fragment):
-    text = TAG_RE.sub(" ", fragment)
-    for entity, char in ENTITIES:                 # &amp; last, so &amp;lt; does not become <
-        text = text.replace(entity, char)
-    return " ".join(text.split())
+    return " ".join(html.unescape(TAG_RE.sub(" ", fragment)).split())
 
 
 def first_table_labels(text):
@@ -77,15 +83,18 @@ def first_table_labels(text):
     if not table:
         return []
     body = TBODY_RE.search(table.group(0))
-    scope, in_tbody = (body.group(0), True) if body else (table.group(0), False)
+    scope = body.group(0) if body else table.group(0)
     labels = []
     for row in ROW_RE.findall(scope):
         cells = CELL_RE.findall(row)
         if not cells:
             continue
-        if not in_tbody and "<th" in row.lower():
-            continue                              # a header row, where no tbody separates it
-        labels.append(strip_tags(cells[0]))
+        tag, first = cells[0]
+        if tag.lower() == "th":
+            continue        # a header row. Judged per cell, not by whether a tbody exists:
+                            # editors that emit no thead put the header inside tbody, and the
+                            # guard then read "Field" as an invented row.
+        labels.append(strip_tags(first))
     return labels
 
 
@@ -95,9 +104,13 @@ def heading_shape(text):
 
 
 def free_text_sections(text):
-    """Prose per section, tables removed, whitespace normalised."""
-    without_tables = TABLE_RE.sub(" ", text)
-    return [strip_tags(part) for part in re.split(r"<h[1-6]\b[^>]*>", without_tables, flags=re.I)]
+    """Text per section, whitespace normalised.
+
+    Table cells are included. Dropping them made a filled-in test note read as a blank form,
+    because a test note's substance IS its checklist table, and made an invented table
+    invisible.
+    """
+    return [strip_tags(part) for part in re.split(r"<h[1-6]\b[^>]*>", text, flags=re.I)]
 
 
 def label_map():
@@ -129,7 +142,7 @@ def compare_with_template(content, template_name):
     """Return a list of problems; empty means the note matches the template exactly."""
     template = TEMPLATES / f"{template_name}.html"
     if not template.is_file():
-        available = ", ".join(sorted(t.stem for t in TEMPLATES.glob("*.md")))
+        available = ", ".join(sorted(t.stem for t in TEMPLATES.glob("*.html")))
         return [f"unknown template `{template_name}`; available: {available}"]
     want = template.read_text(encoding="utf-8")
 
@@ -168,6 +181,18 @@ def compare_with_template(content, template_name):
             problems.append("rows missing: " + ", ".join(missing)
                             + ". A field that cannot be known is left empty, not removed.")
 
+    want_lists, got_lists = len(TASKLIST_RE.findall(want)), len(TASKLIST_RE.findall(content))
+    if want_lists and not got_lists:
+        problems.append('the checklist is missing its markup: a checklist is '
+                        '<ul data-type="taskList"> with <li data-type="taskItem" '
+                        'data-checked="true|false">. Without it the list pastes as plain '
+                        'bullets, which is the whole reason this file is HTML.')
+    elif want_lists != got_lists:
+        problems.append(f"{got_lists} checklists, the template has {want_lists}.")
+    elif got_lists and not TASKITEM_RE.search(content):
+        problems.append('a taskList holds no taskItem: each line is '
+                        '<li data-type="taskItem" data-checked="true|false">.')
+
     want_shape, got_shape = heading_shape(want), heading_shape(content)
     if not is_subsequence(got_shape, want_shape):
         problems.append(f"heading shape is {got_shape}, the template is {want_shape}. "
@@ -196,8 +221,11 @@ def cmd_check(args):
     if args.template == "annex":
         # An annex has no fixed section list by design: what it holds depends on the work.
         # Comparing its shape against the starting point would fail every real annex.
-        print(f"OK: {path.name} is HTML. An annex has no fixed shape, so only the format "
-              f"was checked.")
+        if not heading_shape(content):
+            sys.exit(f"error: {path.name} carries no heading. An annex has no fixed section "
+                     f"list, but it does have sections: a title and one per thing measured.")
+        print(f"OK: {path.name} is HTML with {len(heading_shape(content))} sections. An annex "
+              f"has no fixed shape, so nothing further was compared.")
         return 0
     problems = compare_with_template(content, args.template)
     if problems:

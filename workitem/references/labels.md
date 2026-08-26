@@ -130,7 +130,7 @@ a literal `[x]` next to it. What works, pasted as HTML:
 added. A variant with `<label><input type="checkbox">` inside the item also works and is not
 needed. Without the `data-type` attributes the list degrades to plain bullets.
 
-Another tracker may want different markup. This table is where that changes.
+Another tracker may want different markup. This block is where that changes.
 
 ## Date format
 
