@@ -1,5 +1,3 @@
-## Incident note
-
 | Field | Value |
 |---|---|
 | **WHAT HAPPENED** | |

@@ -1,5 +1,3 @@
-## Test note
-
 | Field | Value |
 |---|---|
 | **TESTED ITEM** | |

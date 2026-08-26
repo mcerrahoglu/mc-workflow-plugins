@@ -1,5 +1,3 @@
-## Task note
-
 | Field | Value |
 |---|---|
 | **TASK** | |

@@ -1,5 +1,3 @@
-## Meeting minutes
-
 | Field | Value |
 |---|---|
 | **SUBJECT** | |
